@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  displayName String?
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tweets      Tweet[]
+  keywords    ProfileKeyword[]
+  enabled     Boolean  @default(true)
+}
+
+model Tweet {
+  id          String   @id @default(cuid())
+  tweetId     String   @unique
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  content     String
+  author      String
+  url         String
+  publishedAt DateTime
+  createdAt   DateTime @default(now())
+  
+  // Relevance tracking
+  relevanceScore    Float   @default(0)
+  status            String   @default("PENDING") // APPROVED, PENDING, REJECTED, IGNORED
+  keywordMatches    String? // JSON array of matched keyword IDs
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  
+  // Metrics
+  likes       Int      @default(0)
+  retweets    Int      @default(0)
+  replies     Int      @default(0)
+  views       Int      @default(0)
+  
+  // Connections
+  connections  TweetConnection[]
+  tags         TweetTag[]
+}
+
+model Keyword {
+  id          String   @id @default(cuid())
+  word        String   @unique
+  category    String?
+  isNegative  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  profileKeywords ProfileKeyword[]
+  tweetTags   TweetTag[]
+  
+  @@index([category])
+  @@index([isNegative])
+}
+
+model ProfileKeyword {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  keywordId String
+  keyword   Keyword  @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  
+  @@unique([profileId, keywordId])
+  @@index([profileId])
+  @@index([keywordId])
+}
+
+model TweetTag {
+  id        String   @id @default(cuid())
+  tweetId   String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  keywordId String
+  keyword   Keyword  @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  
+  @@unique([tweetId, keywordId])
+  @@index([tweetId])
+  @@index([keywordId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String   @unique
+  description String?
+  apiKey      String   @unique @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  connections TweetConnection[]
+}
+
+model TweetConnection {
+  id         String   @id @default(cuid())
+  tweetId    String
+  tweet      Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  notes      String?
+  createdAt  DateTime @default(now())
+  
+  @@unique([tweetId, projectId])
+  @@index([tweetId])
+  @@index([projectId])
+}
+
+model ScrapeLog {
+  id          String   @id @default(cuid())
+  profileId   String
+  tweetsFound Int      @default(0)
+  tweetsSaved Int      @default(0)
+  errors      String?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  @@index([profileId])
+  @@index([startedAt])
+}

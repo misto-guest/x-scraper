@@ -34,3 +34,47 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 ---
 
 Add whatever helps you do your job. This is your cheat sheet.
+
+---
+
+## Installed Tools
+
+### Chrome DevTools MCP
+**Install command:** `npx -y chrome-devtools-mcp@latest`
+
+**Production mode (privacy-focused):**
+```bash
+npx -y chrome-devtools-mcp@latest \
+  --headless \
+  --isolated \
+  --no-usage-statistics \
+  --no-performance-crux
+```
+
+**Development mode (visible browser):**
+```bash
+npx -y chrome-devtools-mcp@latest \
+  --viewport 1920x1080
+```
+
+**Connect to existing Chrome:**
+```bash
+# Start Chrome with remote debugging
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+  --remote-debugging-port=9222 \
+  --user-data-dir=/tmp/chrome-profile
+
+# Connect MCP to it
+npx -y chrome-devtools-mcp@latest \
+  --browserUrl=http://127.0.0.1:9222
+```
+
+**Use cases:**
+- Technical SEO audits (Core Web Vitals)
+- Backlink verification
+- Competitor intelligence
+- Local SEO monitoring (GMB screenshots)
+- Marketplace ranking services
+
+**Documentation:** `/memory/CHROME-DEVTOOLS-MCP-INTTEGRATION.md`
+
