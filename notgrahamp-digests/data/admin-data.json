@@ -1,0 +1,56 @@
+{
+  "reviews": [],
+  "tweets": {},
+  "actionItems": [],
+  "openclawCategories": [
+    {
+      "id": "feature",
+      "name": "Feature Addition",
+      "keywords": ["feature", "add", "implement", "new"],
+      "actionTemplate": "Implement new feature based on tweet: {tweetUrl}"
+    },
+    {
+      "id": "bugfix",
+      "name": "Bug Fix",
+      "keywords": ["fix", "bug", "issue", "error"],
+      "actionTemplate": "Fix bug described in: {tweetUrl}"
+    },
+    {
+      "id": "performance",
+      "name": "Performance",
+      "keywords": ["faster", "optimize", "performance", "speed", "slow"],
+      "actionTemplate": "Optimize performance for: {tweetUrl}"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "keywords": ["security", "auth", "permission", "vulnerability", "secure"],
+      "actionTemplate": "Address security issue from: {tweetUrl}"
+    },
+    {
+      "id": "integration",
+      "name": "Integration",
+      "keywords": ["integrate", "connect", "API", "webhook", "integration"],
+      "actionTemplate": "Set up integration mentioned in: {tweetUrl}"
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "keywords": ["docs", "guide", "README", "tutorial", "document"],
+      "actionTemplate": "Create/update documentation for: {tweetUrl}"
+    }
+  ],
+  "projects": [
+    {
+      "id": "facebook-monetization",
+      "name": "Facebook monetisation programme",
+      "keywords": ["monetization", "monetisation", "reels", "facebook", "meta", "payout", "creator"],
+      "relevanceThreshold": 70,
+      "description": "Tracking Facebook content monetization updates and requirements",
+      "actionTemplate": "Review and update our Facebook monetization strategy based on: {tweetUrl}"
+    }
+  ],
+  "settings": {
+    "lastUpdated": null
+  }
+}

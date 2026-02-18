@@ -1,0 +1,17 @@
+{
+  "name": "drive-uploader",
+  "version": "1.0.0",
+  "description": "Simple Google Drive file uploader for OpenClaw",
+  "type": "module",
+  "main": "upload.js",
+  "bin": {
+    "drive-upload": "./upload.js"
+  },
+  "scripts": {
+    "test": "node upload.js --help"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0",
+    "mime-types": "^2.1.35"
+  }
+}

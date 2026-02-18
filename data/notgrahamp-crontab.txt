@@ -1,0 +1,4 @@
+# Tweet monitoring for @notgrahamp
+# Runs daily at 9:00 AM Europe/Amsterdam time
+# To install: crontab < /Users/northsea/clawd-dmitry/data/notgrahamp-crontab.txt
+0 9 * * * /Users/northsea/clawd-dmitry/scripts/fetch-notgrahamp-tweets.sh >> /Users/northsea/clawd-dmitry/logs/notgrahamp-cron.log 2>&1

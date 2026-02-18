@@ -1,0 +1,257 @@
+---
+export const prerender = false;
+
+import { getReviews, createReview, deleteReview } from '../../lib/admin-utils';
+import type { Review } from '../../types/admin';
+
+// Check authentication
+const authCookie = Astro.cookies.get('admin_auth');
+const isAuthenticated = authCookie?.value === 'true';
+
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+const action = Astro.url.searchParams.get('action');
+const deleteId = Astro.url.searchParams.get('delete');
+
+// Handle delete
+if (deleteId) {
+  deleteReview(deleteId);
+  return Astro.redirect('/admin/reviews?deleted=true');
+}
+
+const reviews = getReviews();
+const searchQuery = Astro.url.searchParams.get('search') || '';
+const filteredReviews = searchQuery 
+  ? reviews.filter(r => 
+      r.date.includes(searchQuery) || 
+      r.notes.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  : reviews;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Reviews</title>
+    <link rel="stylesheet" href="/styles/global.css">
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white dark:bg-slate-800 shadow-md p-6">
+        <div class="mb-8">
+          <h1 class="text-xl font-bold text-slate-900 dark:text-white">Admin Panel</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400">notgrahamp digests</p>
+        </div>
+        
+        <nav class="space-y-2">
+          <a href="/admin" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Dashboard
+          </a>
+          <a href="/admin/reviews" class="block px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium">
+            Reviews
+          </a>
+          <a href="/admin/tweets" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Tweets
+          </a>
+          <a href="/admin/action-converter" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Action Converter
+          </a>
+          <a href="/admin/analyze" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <span class="mr-2">🔍</span>Tweet Analyzer
+          </a>
+          <a href="/admin/settings" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <span class="mr-2">⚙️</span>Settings
+          </a>
+          <a href="/admin/export" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Export Data
+          </a>
+          <a href="/admin/logout" class="block px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+            Logout
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 p-8">
+        <div class="max-w-6xl mx-auto">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Reviews</h2>
+            <button
+              onclick="showCreateModal()"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              + Create Review
+            </button>
+          </div>
+
+          <!-- Search -->
+          <div class="mb-6">
+            <input
+              type="text"
+              id="searchInput"
+              value={searchQuery}
+              placeholder="Search reviews by date or notes..."
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              onkeyup="if(event.key === 'Enter') window.location.href = '/admin/reviews?search=' + this.value"
+            />
+            <button 
+              onclick="window.location.href = '/admin/reviews?search=' + document.getElementById('searchInput').value"
+              class="mt-2 bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded-lg"
+            >
+              Search
+            </button>
+          </div>
+
+          <!-- Reviews table -->
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
+            {filteredReviews.length === 0 ? (
+              <div class="p-12 text-center">
+                <p class="text-slate-600 dark:text-slate-400 text-lg">
+                  {searchQuery ? 'No reviews match your search.' : 'No reviews yet. Create your first review!'}
+                </p>
+              </div>
+            ) : (
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-slate-50 dark:bg-slate-700">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Notes</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Action Items</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Updated</th>
+                      <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                    {filteredReviews.map(review => (
+                      <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
+                          {review.date}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 max-w-xs truncate">
+                          {review.notes || 'No notes'}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+                          {review.actionItems?.length || 0} items
+                          {review.actionItems && review.actionItems.filter(i => i.completed).length > 0 && (
+                            <span class="ml-2 text-green-600 dark:text-green-400">
+                              ({review.actionItems.filter(i => i.completed).length} done)
+                            </span>
+                          )}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                          {new Date(review.updatedAt).toLocaleDateString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <a
+                            href={`/admin/reviews/${review.id}`}
+                            class="text-blue-600 dark:text-blue-400 hover:underline mr-3"
+                          >
+                            Edit
+                          </a>
+                          <button
+                            onclick="confirmDelete('{review.id}', '{review.date}')"
+                            class="text-red-600 dark:text-red-400 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Create Modal -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Create Review</h3>
+          <form id="createForm" action="/admin/reviews/create" method="POST">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Date *
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  required
+                  class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Notes
+                </label>
+                <textarea
+                  name="notes"
+                  rows="4"
+                  class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  placeholder="Enter your review notes..."
+                ></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Action Items (one per line)
+                </label>
+                <textarea
+                  name="actionItems"
+                  rows="4"
+                  class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  placeholder="Enter action items, one per line..."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                onclick="hideCreateModal()"
+                class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+              >
+                Create Review
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showCreateModal() {
+        document.getElementById('createModal').classList.remove('hidden');
+        document.getElementById('createModal').classList.add('flex');
+      }
+
+      function hideCreateModal() {
+        document.getElementById('createModal').classList.add('hidden');
+        document.getElementById('createModal').classList.remove('flex');
+      }
+
+      function confirmDelete(id, date) {
+        if (confirm(`Are you sure you want to delete the review from ${date}?`)) {
+          window.location.href = `/admin/reviews?delete=${id}`;
+        }
+      }
+    </script>
+  </body>
+</html>

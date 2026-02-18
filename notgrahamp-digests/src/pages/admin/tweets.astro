@@ -1,0 +1,308 @@
+---
+export const prerender = false;
+
+import fs from 'fs';
+import path from 'path';
+import { getTweets, updateTweetStatus, bulkUpdateTweets } from '../../lib/admin-utils';
+
+// Check authentication
+const authCookie = Astro.cookies.get('admin_auth');
+const isAuthenticated = authCookie?.value === 'true';
+
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+const tweets = getTweets();
+const searchQuery = Astro.url.searchParams.get('search') || '';
+const filterStatus = Astro.url.searchParams.get('status') || '';
+
+// Read recent digest files to get tweet content
+const digestDir = './data/notgrahamp-daily-digest';
+const recentTweets: Array<{
+  id: string;
+  content: string;
+  date: string;
+}> = [];
+
+try {
+  const files = fs.readdirSync(digestDir)
+    .filter(file => file.endsWith('.md'))
+    .sort()
+    .reverse()
+    .slice(0, 7); // Last 7 days
+
+  for (const file of files) {
+    const filePath = path.join(digestDir, file);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
+    const date = dateMatch ? dateMatch[1] : file;
+    
+    // Extract tweet-like content (simple extraction)
+    const lines = content.split('\n');
+    let inTweetSection = false;
+    let tweetCount = 0;
+    
+    for (const line of lines) {
+      if (line.startsWith('## New Tweets Today')) {
+        inTweetSection = true;
+        continue;
+      }
+      if (inTweetSection && line.startsWith('##')) {
+        break;
+      }
+      if (inTweetSection && line.trim().startsWith('-')) {
+        const tweetContent = line.slice(1).trim();
+        const tweetId = `${date}-${tweetCount}`;
+        recentTweets.push({
+          id: tweetId,
+          content: tweetContent,
+          date
+        });
+        tweetCount++;
+      }
+    }
+  }
+} catch (error) {
+  console.error('Error reading digest files:', error);
+}
+
+// Combine stored metadata with recent tweets
+const allTweets = recentTweets.map(tweet => ({
+  ...tweet,
+  metadata: tweets[tweet.id] || { status: 'new' as const, tags: [] }
+}));
+
+// Filter
+let filteredTweets = allTweets;
+if (searchQuery) {
+  filteredTweets = filteredTweets.filter(t => 
+    t.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+}
+if (filterStatus) {
+  filteredTweets = filteredTweets.filter(t => t.metadata.status === filterStatus);
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Tweets</title>
+    <link rel="stylesheet" href="/styles/global.css">
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white dark:bg-slate-800 shadow-md p-6">
+        <div class="mb-8">
+          <h1 class="text-xl font-bold text-slate-900 dark:text-white">Admin Panel</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400">notgrahamp digests</p>
+        </div>
+        
+        <nav class="space-y-2">
+          <a href="/admin" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Dashboard
+          </a>
+          <a href="/admin/reviews" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Reviews
+          </a>
+          <a href="/admin/tweets" class="block px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium">
+            Tweets
+          </a>
+          <a href="/admin/action-converter" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Action Converter
+          </a>
+          <a href="/admin/analyze" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <span class="mr-2">🔍</span>Tweet Analyzer
+          </a>
+          <a href="/admin/export" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Export Data
+          </a>
+          <a href="/admin/logout" class="block px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+            Logout
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 p-8">
+        <div class="max-w-6xl mx-auto">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Tweet Management</h2>
+            <div class="flex space-x-2">
+              <select id="bulkAction" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
+                <option value="">Bulk action...</option>
+                <option value="reviewed">Mark as Reviewed</option>
+                <option value="archived">Archive</option>
+              </select>
+              <button
+                onclick="applyBulkAction()"
+                class="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-lg"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="text"
+              id="searchInput"
+              value={searchQuery}
+              placeholder="Search tweets..."
+              class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              onkeyup="if(event.key === 'Enter') applyFilters()"
+            />
+            <select 
+              id="statusFilter"
+              class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              onchange="applyFilters()"
+            >
+              <option value="">All Status</option>
+              <option value="new" selected={filterStatus === 'new'}>New</option>
+              <option value="reviewed" selected={filterStatus === 'reviewed'}>Reviewed</option>
+              <option value="archived" selected={filterStatus === 'archived'}>Archived</option>
+            </select>
+            <button 
+              onclick="applyFilters()"
+              class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
+            >
+              Filter
+            </button>
+          </div>
+
+          <!-- Tweets list -->
+          <div class="space-y-4">
+            {filteredTweets.length === 0 ? (
+              <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-12 text-center">
+                <p class="text-slate-600 dark:text-slate-400 text-lg">
+                  {searchQuery || filterStatus ? 'No tweets match your filters.' : 'No tweets found.'}
+                </p>
+              </div>
+            ) : (
+              filteredTweets.map(tweet => (
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4 flex-1">
+                      <input
+                        type="checkbox"
+                        class="tweet-checkbox mt-1"
+                        data-id={tweet.id}
+                      />
+                      <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white mb-2">
+                          {tweet.content}
+                        </p>
+                        <div class="flex items-center space-x-4 text-sm">
+                          <span class="text-slate-500 dark:text-slate-400">
+                            {tweet.date}
+                          </span>
+                          <span class={`px-2 py-1 rounded text-xs font-medium ${
+                            tweet.metadata.status === 'new' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                              : tweet.metadata.status === 'reviewed'
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                              : 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-400'
+                          }`}>
+                            {tweet.metadata.status.toUpperCase()}
+                          </span>
+                          {tweet.metadata.tags && tweet.metadata.tags.length > 0 && (
+                            <div class="flex space-x-1">
+                              {tweet.metadata.tags.map(tag => (
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400 rounded text-xs">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex space-x-2 ml-4">
+                      <button
+                        onclick="markAsReviewed('{tweet.id}')"
+                        class="text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 dark:text-blue-400 px-3 py-1 rounded"
+                      >
+                        Review
+                      </button>
+                      <button
+                        onclick="archiveTweet('{tweet.id}')"
+                        class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-3 py-1 rounded"
+                      >
+                        Archive
+                      </button>
+                      <button
+                        data-tweet-id={tweet.id}
+                        data-tweet-content={tweet.content}
+                        onclick="convertToAction(this.dataset.tweetId, this.dataset.tweetContent)"
+                        class="text-sm bg-green-100 hover:bg-green-200 text-green-800 dark:bg-green-900/20 dark:hover:bg-green-900/40 dark:text-green-400 px-3 py-1 rounded"
+                      >
+                        Convert
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      function applyFilters() {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        let url = '/admin/tweets?';
+        if (search) url += `search=${encodeURIComponent(search)}&`;
+        if (status) url += `status=${status}`;
+        window.location.href = url;
+      }
+
+      function markAsReviewed(id) {
+        fetch('/admin/api/tweets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status: 'reviewed' })
+        }).then(() => window.location.reload());
+      }
+
+      function archiveTweet(id) {
+        if (confirm('Archive this tweet?')) {
+          fetch('/admin/api/tweets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, status: 'archived' })
+          }).then(() => window.location.reload());
+        }
+      }
+
+      function convertToAction(id, content) {
+        window.location.href = `/admin/action-converter?tweetId=${id}&content=${encodeURIComponent(content)}`;
+      }
+
+      function applyBulkAction() {
+        const action = document.getElementById('bulkAction').value;
+        if (!action) return;
+        
+        const checkboxes = document.querySelectorAll('.tweet-checkbox:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.dataset.id);
+        
+        if (ids.length === 0) {
+          alert('Please select tweets first');
+          return;
+        }
+
+        fetch('/admin/api/tweets/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids, status: action })
+        }).then(() => window.location.reload());
+      }
+    </script>
+  </body>
+</html>

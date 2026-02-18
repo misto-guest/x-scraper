@@ -216,3 +216,129 @@ Marks task complete
 
 Only final build settings remain (5 min manual work via Dashboard).
 
+---
+
+## 📤 Google Drive OAuth Uploader (2026-02-17)
+
+**Location:** `/Users/northsea/clawd-dmitry/scripts/drive-uploader/`
+
+**Purpose:** Upload files to Google Drive via OAuth (service accounts don't work for My Drive)
+
+**Key Files:**
+- `oauth-upload.js` - Main uploader using personal Google account
+- `oauth-credentials.json` - OAuth client credentials (download from Google Cloud Console)
+- `oauth-token.json` - Auto-generated after authorization
+- `setup-wizard.sh` - Interactive setup guide
+
+**Setup Required:**
+1. Create OAuth client ID in Google Cloud Console (project: openclaw-file-upload)
+2. Download credentials JSON
+3. Run: `node oauth-upload.js --folder <FOLDER_ID> file.txt`
+4. Authorize in browser (one-time)
+
+**Target Folder:**
+- **Name:** OpenClaw Drive Uploads
+- **ID:** `1Q_wBbz1a-m0ZFlElQv9JJ4lGgZinuZBh`
+- **URL:** https://drive.google.com/drive/u/0/folders/1Q_wBbz1a-m0ZFlElQv9JJ4lGgZinuZBh
+
+**Usage:**
+```bash
+export DRIVE_UPLOADER_FOLDER_ID="1Q_wBbz1a-m0ZFlElQv9JJ4lGgZinuZBh"
+node oauth-upload.js /path/to/file.zip
+node oauth-upload.js list
+```
+
+**Max file size:** 100 MB
+
+**Documentation:** `SETUP-OAUTH.md`, `OAUTH-QUICKSTART.md`
+
+---
+
+## 🤖 Bol.com Outreach Bot with AdsPower (2026-02-17)
+
+**Location:** `/Users/northsea/clawd-dmitry/bol-outreach-bot/`
+
+**Purpose:** Automated outreach to Bol.com sellers with rate limiting and profile rotation
+
+**Core Components:**
+
+### 1. AdsPower Client
+- **Server:** 77.42.21.134:50325
+- **Account:** rebel@rebelinternet.eu (DO NOT use elsewhere)
+- **Features:**
+  - Remote browser control via API
+  - CDP URL reconstruction for remote connections
+  - Automatic page cleanup
+  - VNC debugging support
+
+### 2. Enhanced Features
+- **Rate Limiting:** 5 messages/hour per profile
+- **Profile Rotation:** Automatic cycling through multiple profiles
+- **Message Variations:** AI-powered rewriting (10-20 variations/month)
+- **Business Hours:** 9AM-8PM Mon-Sat (GMT+1)
+
+### 3. Capacity
+- **Per profile:** 5 messages/hour
+- **3 profiles:** 15 messages/hour
+- **Daily:** 165 messages (11 hours × 15)
+- **Weekly:** 990 messages (6 days × 165)
+
+**Key Files:**
+- `lib/adspower-client.ts` - AdsPower API client
+- `lib/bol-outreach-bot-enhanced.ts` - Main bot with all features
+- `lib/rate-limiter.ts` - Per-profile rate limiting
+- `lib/profile-rotator.ts` - Profile cycling
+- `lib/message-variator.ts` - AI message variations
+- `lib/time-window-checker.ts` - Business hours enforcement
+- `example-enhanced.ts` - Usage example
+
+**Setup:**
+```bash
+# Get profile IDs
+npm run list-profiles
+
+# Update config with actual profile IDs
+# Edit example-enhanced.ts
+
+# Run bot
+npm run start:enhanced
+```
+
+**Cron Job:**
+```bash
+# Every hour during business hours
+0 9-20 * * 1-6 cd /Users/northsea/clawd-dmitry/bol-outreach-bot && npm run start:enhanced
+```
+
+**Important Notes:**
+- **AdsPower account security:** DO NOT login to rebel@rebelinternet.eu from other servers
+- **VNC debugging:** Ask Dmitry.p for SSH access
+- **Page cleanup:** Automatic on startup (prevents memory issues)
+- **Always call shutdown()** to close browser properly
+
+**Documentation:** `README.md`, `ENHANCED-FEATURES.md`, `QUICK-START-ENHANCED.md`, `VERIFICATION.md`
+
+---
+
+## 📚 SEO Backlinks Search (Existing)
+
+**Location:** `/Users/northsea/clawd-dmitry/seo-backlinks-search/`
+
+**Queries Used:**
+1. "seo link building services"
+2. "backlink indexer tools"
+3. "guest posting services SEO"
+4. "blogger outreach link building"
+5. "white hat backlinks service"
+
+**Data:**
+- **Master DB:** `data/master-urls.json` (169 URLs)
+- **Total unique results:** 80 URLs
+- **Filtering:** Excluded Dutch sites, crypto/gambling, price comparisons
+
+**Integration with Drive Uploader:**
+Use OAuth uploader to share monthly exports:
+```bash
+node oauth-upload.js ~/clawd-dmitry/seo-backlinks-search/results/monthly-export.zip
+```
+

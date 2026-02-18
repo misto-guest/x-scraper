@@ -1,0 +1,10 @@
+{
+  "lastPoll": "2026-02-18T11:30:14+01:00",
+  "lastPollTimestamp": 1771410613,
+  "notifiedTasks": [
+    "test-task-1",
+    "test-task-2"
+  ],
+  "lastError": null,
+  "pollCount": 5
+}

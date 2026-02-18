@@ -1,0 +1,736 @@
+---
+export const prerender = false;
+
+// Check authentication
+const authCookie = Astro.cookies.get('admin_auth');
+const isAuthenticated = authCookie?.value === 'true';
+
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+import { getProjects, getOpenClawCategories } from '../../lib/admin-utils';
+
+const projects = getProjects();
+const categories = getOpenClawCategories();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tweet Analyzer - Admin Panel</title>
+    <link rel="stylesheet" href="/styles/global.css">
+    <script>
+      addEventListener('load', () => {
+        const style = document.createElement('style');
+        style.textContent = `
+          .loading { opacity: 0.6; pointer-events: none; }
+          .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          .sentiment-positive { background: linear-gradient(135deg, #10b981, #059669); }
+          .sentiment-neutral { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+          .sentiment-negative { background: linear-gradient(135deg, #ef4444, #dc2626); }
+          .card-hover { transition: all 0.2s ease; }
+          .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+          .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+          }
+          @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+          .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+          .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+          .relevance-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+          }
+          .relevance-high { background: #dcfce7; color: #166534; }
+          .relevance-medium { background: #fef9c3; color: #854d0e; }
+          .relevance-low { background: #fee2e2; color: #991b1b; }
+          .keyword-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin: 2px;
+          }
+        `;
+        document.head.appendChild(style);
+      });
+    </script>
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white dark:bg-slate-800 shadow-md p-6">
+        <div class="mb-8">
+          <h1 class="text-xl font-bold text-slate-900 dark:text-white">Admin Panel</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400">notgrahamp digests</p>
+        </div>
+
+        <nav class="space-y-2">
+          <a href="/admin" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Dashboard
+          </a>
+          <a href="/admin/reviews" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Reviews
+          </a>
+          <a href="/admin/tweets" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Tweets
+          </a>
+          <a href="/admin/action-converter" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Action Converter
+          </a>
+          <a href="/admin/analyze" class="block px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium">
+            <span class="mr-2">🔍</span>Tweet Analyzer
+          </a>
+          <a href="/admin/settings" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <span class="mr-2">⚙️</span>Settings
+          </a>
+          <a href="/admin/export" class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            Export Data
+          </a>
+          <a href="/admin/logout" class="block px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+            Logout
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 p-8">
+        <div class="max-w-5xl mx-auto">
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Tweet Analyzer</h2>
+            <p class="text-slate-600 dark:text-slate-400">
+              Analyze tweets with AI-powered categorization and relevance scoring
+            </p>
+          </div>
+
+          <!-- Input section -->
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-8 card-hover">
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Analyze a Tweet</h3>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Tweet URL
+              </label>
+              <input
+                type="url"
+                id="tweetUrl"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                placeholder="https://x.com/username/status/1234567890"
+              />
+            </div>
+
+            <!-- Analysis Type Selector -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Analysis Type
+              </label>
+              <select
+                id="analysisType"
+                onchange="toggleAnalysisOptions()"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
+                <option value="auto">🤖 Auto-Detect</option>
+                <option value="openclaw">🔧 OpenClaw Upgrade</option>
+                <option value="project">📊 Project-Specific</option>
+              </select>
+            </div>
+
+            <!-- Project Selector (for Project-Specific analysis) -->
+            <div id="projectSelector" class="mb-4 hidden">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Select Project
+              </label>
+              <select
+                id="selectedProject"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
+                <option value="">-- Select a project --</option>
+                ${(projects || []).map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+              </select>
+              <p id="projectDescription" class="mt-2 text-sm text-slate-500 dark:text-slate-400 hidden"></p>
+            </div>
+
+            <!-- OpenClaw Category Selector (for OpenClaw Upgrade analysis) -->
+            <div id="categorySelector" class="mb-4 hidden">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Select Category (Optional - will auto-detect if not selected)
+              </label>
+              <select
+                id="selectedCategory"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
+                <option value="">Auto-Detect</option>
+                ${(categories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+              </select>
+            </div>
+
+            <button
+              id="analyzeBtn"
+              onclick="analyzeTweet()"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              <span id="btnText">🔍 Analyze Tweet</span>
+            </button>
+          </div>
+
+          <!-- Results section -->
+          <div id="resultsSection" class="hidden">
+            <!-- Tweet Preview Card -->
+            <div id="tweetPreview" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-6 card-hover">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Tweet Preview</h3>
+
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <span id="authorAvatar">?</span>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <span id="authorName" class="font-semibold text-slate-900 dark:text-white">@username</span>
+                    <span id="tweetDate" class="text-sm text-slate-500 dark:text-slate-400">·</span>
+                  </div>
+                  <p id="tweetText" class="text-slate-700 dark:text-slate-300 mb-3"></p>
+
+                  <!-- Metrics -->
+                  <div id="tweetMetrics" class="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
+                  </div>
+
+                  <a id="tweetLink" href="#" target="_blank" class="inline-block mt-3 text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                    View on X →
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Categorization Results -->
+            <div id="categorizationCard" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-6 card-hover">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Categorization</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Relevance Score -->
+                <div>
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Relevance Score</h4>
+                  <div id="relevanceBadge" class="relevance-badge relevance-medium">
+                    <span id="relevanceText">50%</span>
+                  </div>
+                </div>
+
+                <!-- Category/Project -->
+                <div>
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Matched Category</h4>
+                  <div id="matchedCategory" class="text-slate-900 dark:text-white font-medium">
+                    -
+                  </div>
+                </div>
+
+                <!-- Matched Keywords -->
+                <div class="md:col-span-2">
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Matched Keywords</h4>
+                  <div id="matchedKeywords" class="flex flex-wrap gap-2">
+                    <span class="text-slate-500 dark:text-slate-400 text-sm">No matches</span>
+                  </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="md:col-span-2">
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">AI Summary</h4>
+                  <p id="aiSummary" class="text-slate-700 dark:text-slate-300 text-sm">
+                    -
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analysis Results Card -->
+            <div id="analysisCard" class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-6 card-hover">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Analysis Results</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Sentiment -->
+                <div>
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Sentiment</h4>
+                  <div id="sentimentBadge" class="inline-flex items-center px-4 py-2 rounded-full text-white font-medium">
+                    <span id="sentimentText">Neutral</span>
+                    <span id="sentimentScore" class="ml-2 text-sm opacity-80"></span>
+                  </div>
+                </div>
+
+                <!-- Topics -->
+                <div>
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Key Topics</h4>
+                  <div id="topicsContainer" class="flex flex-wrap gap-2">
+                  </div>
+                </div>
+
+                <!-- Hashtags -->
+                <div>
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Hashtags</h4>
+                  <div id="hashtagsContainer" class="flex flex-wrap gap-2">
+                  </div>
+                </div>
+
+                <!-- Priority -->
+                <div>
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Priority</h4>
+                  <div id="priorityBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">
+                    -
+                  </div>
+                </div>
+
+                <!-- Suggested Actions -->
+                <div class="md:col-span-2">
+                  <h4 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Suggested Actions</h4>
+                  <ul id="actionsList" class="space-y-2">
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 card-hover">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Actions</h3>
+
+              <div class="flex flex-wrap gap-3">
+                <button
+                  id="sendToOpenClawBtn"
+                  onclick="sendToOpenClaw()"
+                  class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-lg"
+                >
+                  🚀 Send to OpenClaw
+                </button>
+                <button
+                  onclick="saveAsReview()"
+                  class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  📝 Save as Review
+                </button>
+                <button
+                  onclick="convertToAction()"
+                  class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  ✅ Convert to Action
+                </button>
+                <button
+                  onclick="copyResults()"
+                  class="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  📋 Copy Results
+                </button>
+                <button
+                  onclick="resetForm()"
+                  class="border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  🔄 Analyze Another
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- How it works -->
+          <div class="mt-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg shadow p-6">
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">How It Works</h3>
+            <ol class="list-decimal list-inside space-y-2 text-slate-700 dark:text-slate-300">
+              <li>Paste any X.com or Twitter.com tweet URL</li>
+              <li>Choose analysis type (auto-detect, OpenClaw upgrade, or project-specific)</li>
+              <li>Click "Analyze Tweet" to fetch and analyze with AI</li>
+              <li>Review categorization, relevance score, and matched keywords</li>
+              <li>Send to OpenClaw for implementation, save as review, or convert to action</li>
+            </ol>
+
+            <div class="mt-4 p-4 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p class="text-sm text-blue-800 dark:text-blue-400">
+                <strong>🚀 New: Send to OpenClaw:</strong> One-click integration to create action items that go directly to Dmitry's main session for implementation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      let currentAnalysis = null;
+      let currentTweet = null;
+      let currentCategorization = null;
+
+      const projects = JSON.parse(decodeURIComponent(`${encodeURIComponent(JSON.stringify(Object.values(JSON.parse(`${JSON.stringify({projects: []})}`).projects || {}))}`));
+
+      // Toggle analysis options based on type
+      function toggleAnalysisOptions() {
+        const type = document.getElementById('analysisType').value;
+        const projectSelector = document.getElementById('projectSelector');
+        const categorySelector = document.getElementById('categorySelector');
+
+        if (type === 'project') {
+          projectSelector.classList.remove('hidden');
+          categorySelector.classList.add('hidden');
+        } else if (type === 'openclaw') {
+          projectSelector.classList.add('hidden');
+          categorySelector.classList.remove('hidden');
+        } else {
+          projectSelector.classList.add('hidden');
+          categorySelector.classList.add('hidden');
+        }
+      }
+
+      // Project description on change
+      document.addEventListener('DOMContentLoaded', () => {
+        const projectSelect = document.getElementById('selectedProject');
+        if (projectSelect) {
+          projectSelect.addEventListener('change', () => {
+            const projectId = projectSelect.value;
+            const project = projects.find(p => p.id === projectId);
+            const descEl = document.getElementById('projectDescription');
+
+            if (project) {
+              descEl.textContent = project.description;
+              descEl.classList.remove('hidden');
+            } else {
+              descEl.classList.add('hidden');
+            }
+          });
+        }
+
+        document.getElementById('tweetUrl').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            analyzeTweet();
+          }
+        });
+      });
+
+      async function analyzeTweet() {
+        const url = document.getElementById('tweetUrl').value.trim();
+        const analysisType = document.getElementById('analysisType').value;
+        const selectedProject = document.getElementById('selectedProject').value;
+        const selectedCategory = document.getElementById('selectedCategory').value;
+
+        if (!url) {
+          showToast('Please enter a tweet URL', 'error');
+          return;
+        }
+
+        if (analysisType === 'project' && !selectedProject) {
+          showToast('Please select a project', 'error');
+          return;
+        }
+
+        const urlPattern = /^https?:\/\/(www\.)?(twitter|x)\.com\/[a-zA-Z0-9_]+\/status\/[0-9]+/;
+        if (!urlPattern.test(url)) {
+          showToast('Invalid tweet URL', 'error');
+          return;
+        }
+
+        const btn = document.getElementById('analyzeBtn');
+        const btnText = document.getElementById('btnText');
+        btn.classList.add('loading');
+        btnText.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+        try {
+          const response = await fetch('/admin/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url,
+              analysisType,
+              projectId: selectedProject || undefined,
+              categoryId: selectedCategory || undefined
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Analysis failed');
+          }
+
+          const data = await response.json();
+
+          if (!data.success) {
+            throw new Error(data.error || 'Analysis failed');
+          }
+
+          currentTweet = data.content;
+          currentAnalysis = data.analysis;
+          currentCategorization = data.categorization;
+
+          displayResults(data.content, data.analysis, data.categorization);
+          showToast('Tweet analyzed successfully!', 'success');
+
+        } catch (error) {
+          showToast('Error: ' + error.message, 'error');
+          console.error('Analysis error:', error);
+        } finally {
+          btn.classList.remove('loading');
+          btnText.innerHTML = '🔍 Analyze Tweet';
+        }
+      }
+
+      function displayResults(tweet, analysis, categorization) {
+        // Display tweet preview
+        document.getElementById('authorName').textContent = tweet.author;
+        document.getElementById('authorAvatar').textContent = tweet.author.charAt(1).toUpperCase();
+        document.getElementById('tweetText').textContent = tweet.text;
+        document.getElementById('tweetDate').textContent = '· ' + tweet.date;
+        document.getElementById('tweetLink').href = tweet.url;
+
+        // Display metrics
+        const metricsContainer = document.getElementById('tweetMetrics');
+        metricsContainer.innerHTML = '';
+        if (tweet.metrics) {
+          if (tweet.metrics.likes) {
+            metricsContainer.innerHTML += `<span class="flex items-center">❤️ ${formatNumber(tweet.metrics.likes)}</span>`;
+          }
+          if (tweet.metrics.retweets) {
+            metricsContainer.innerHTML += `<span class="flex items-center">🔄 ${formatNumber(tweet.metrics.retweets)}</span>`;
+          }
+          if (tweet.metrics.replies) {
+            metricsContainer.innerHTML += `<span class="flex items-center">💬 ${formatNumber(tweet.metrics.replies)}</span>`;
+          }
+        }
+
+        // Display categorization
+        displayCategorization(categorization);
+
+        // Display sentiment
+        const sentimentBadge = document.getElementById('sentimentBadge');
+        sentimentBadge.className = 'inline-flex items-center px-4 py-2 rounded-full text-white font-medium sentiment-' + analysis.sentiment;
+        document.getElementById('sentimentText').textContent = analysis.sentiment.charAt(0).toUpperCase() + analysis.sentiment.slice(1);
+        document.getElementById('sentimentScore').textContent = '(' + analysis.sentimentScore + '/100)';
+
+        // Display topics
+        const topicsContainer = document.getElementById('topicsContainer');
+        topicsContainer.innerHTML = '';
+        analysis.topics.forEach(topic => {
+          topicsContainer.innerHTML += `<span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-full text-sm">${topic}</span>`;
+        });
+
+        // Display hashtags
+        const hashtagsContainer = document.getElementById('hashtagsContainer');
+        hashtagsContainer.innerHTML = '';
+        if (analysis.hashtags.length > 0) {
+          analysis.hashtags.forEach(tag => {
+            hashtagsContainer.innerHTML += `<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-sm">#${tag}</span>`;
+          });
+        } else {
+          hashtagsContainer.innerHTML = '<span class="text-slate-500 dark:text-slate-400 text-sm">No hashtags found</span>';
+        }
+
+        // Display priority
+        const priorityBadge = document.getElementById('priorityBadge');
+        priorityBadge.textContent = categorization.priority.charAt(0).toUpperCase() + categorization.priority.slice(1);
+        priorityBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium';
+        if (categorization.priority === 'high') {
+          priorityBadge.classList.add('bg-red-100', 'text-red-800');
+        } else if (categorization.priority === 'medium') {
+          priorityBadge.classList.add('bg-yellow-100', 'text-yellow-800');
+        } else {
+          priorityBadge.classList.add('bg-slate-100', 'text-slate-800');
+        }
+
+        // Display suggested actions
+        const actionsList = document.getElementById('actionsList');
+        actionsList.innerHTML = '';
+        categorization.suggestedActions.forEach(action => {
+          actionsList.innerHTML += `<li class="flex items-start"><span class="text-green-500 mr-2">→</span><span class="text-slate-700 dark:text-slate-300">${action}</span></li>`;
+        });
+
+        // Show/hide Send to OpenClaw button
+        const sendBtn = document.getElementById('sendToOpenClawBtn');
+        if (categorization.relevanceScore >= (categorization.threshold || 70)) {
+          sendBtn.classList.remove('hidden');
+        } else {
+          sendBtn.classList.add('hidden');
+        }
+
+        // Show results section
+        document.getElementById('resultsSection').classList.remove('hidden');
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+      }
+
+      function displayCategorization(categorization) {
+        // Relevance badge
+        const relevanceBadge = document.getElementById('relevanceBadge');
+        const relevanceText = document.getElementById('relevanceText');
+        relevanceText.textContent = categorization.relevanceScore + '%';
+
+        relevanceBadge.classList.remove('relevance-high', 'relevance-medium', 'relevance-low');
+        if (categorization.relevanceScore >= 80) {
+          relevanceBadge.classList.add('relevance-high');
+        } else if (categorization.relevanceScore >= 50) {
+          relevanceBadge.classList.add('relevance-medium');
+        } else {
+          relevanceBadge.classList.add('relevance-low');
+        }
+
+        // Matched category/project
+        const categoryEl = document.getElementById('matchedCategory');
+        if (categorization.analysisType === 'openclaw') {
+          categoryEl.innerHTML = `<span class="text-purple-600 dark:text-purple-400">🔧 ${categorization.category || 'Auto-detect'}</span>`;
+        } else if (categorization.analysisType === 'project') {
+          categoryEl.innerHTML = `<span class="text-blue-600 dark:text-blue-400">📊 ${categorization.projectName || 'Unknown'}</span>`;
+        } else {
+          categoryEl.textContent = categorization.category || categorization.projectName || 'Auto-detected';
+        }
+
+        // Matched keywords
+        const keywordsEl = document.getElementById('matchedKeywords');
+        if (categorization.matchedKeywords && categorization.matchedKeywords.length > 0) {
+          keywordsEl.innerHTML = categorization.matchedKeywords.map(kw =>
+            `<span class="keyword-tag bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400">${kw}</span>`
+          ).join('');
+        } else {
+          keywordsEl.innerHTML = '<span class="text-slate-500 dark:text-slate-400 text-sm">No keyword matches</span>';
+        }
+
+        // AI Summary
+        document.getElementById('aiSummary').textContent = categorization.summary || 'No summary available';
+      }
+
+      function formatNumber(num) {
+        if (num >= 1000000) {
+          return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+          return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+      }
+
+      async function sendToOpenClaw() {
+        if (!currentTweet || !currentCategorization) return;
+
+        const actionData = {
+          title: `[Tweet Action] ${currentCategorization.category || currentCategorization.projectName} - ${currentTweet.author}`,
+          category: currentCategorization.analysisType === 'openclaw' ? 'OpenClaw Upgrade' : currentCategorization.projectName,
+          relevance: currentCategorization.relevanceScore,
+          summary: currentCategorization.summary,
+          tweet: {
+            url: currentTweet.url,
+            author: currentTweet.author,
+            date: currentTweet.date,
+            content: currentTweet.text
+          },
+          actionRequired: currentCategorization.suggestedActions[0] || 'Review and implement',
+          priority: currentCategorization.priority,
+          estimatedEffort: currentCategorization.estimatedEffort
+        };
+
+        try {
+          const response = await fetch('/admin/api/analyze/send-to-openclaw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(actionData)
+          });
+
+          if (response.ok) {
+            showToast('Sent to OpenClaw for implementation!', 'success');
+          } else {
+            throw new Error('Failed to send to OpenClaw');
+          }
+        } catch (error) {
+          showToast('Error sending to OpenClaw: ' + error.message, 'error');
+        }
+      }
+
+      async function saveAsReview() {
+        if (!currentTweet || !currentAnalysis) return;
+
+        const today = new Date().toISOString().split('T')[0];
+        let notes = `Tweet Analysis: ${currentTweet.author}\n\n`;
+
+        if (currentCategorization) {
+          notes += `Type: ${currentCategorization.analysisType === 'openclaw' ? 'OpenClaw Upgrade' : 'Project: ' + currentCategorization.projectName}\n`;
+          notes += `Relevance: ${currentCategorization.relevanceScore}%\n`;
+          notes += `Category: ${currentCategorization.category || currentCategorization.projectName}\n\n`;
+        }
+
+        notes += `Tweet Content:\n${currentTweet.text}\n\n`;
+        notes += `Analysis:\n- Sentiment: ${currentAnalysis.sentiment} (${currentAnalysis.sentimentScore}/100)\n`;
+        notes += `- Topics: ${currentAnalysis.topics.join(', ')}\n`;
+        notes += `- Suggested Actions:\n${currentCategorization?.suggestedActions.map(a => '  • ' + a).join('\n') || currentAnalysis.suggestedActions.map(a => '  • ' + a).join('\n')}`;
+
+        try {
+          const response = await fetch('/admin/api/reviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              date: today,
+              notes: notes,
+              actionItems: (currentCategorization?.suggestedActions || currentAnalysis.suggestedActions).map(action => ({
+                text: action,
+                completed: false
+              }))
+            })
+          });
+
+          if (response.ok) {
+            showToast('Saved as review successfully!', 'success');
+          } else {
+            throw new Error('Failed to save review');
+          }
+        } catch (error) {
+          showToast('Error saving review: ' + error.message, 'error');
+        }
+      }
+
+      function convertToAction() {
+        if (!currentTweet || !currentCategorization) return;
+
+        const content = encodeURIComponent(currentTweet.text);
+        const tweetId = currentTweet.url.split('/').pop();
+        const category = currentCategorization.analysisType === 'openclaw' ? currentCategorization.category : currentCategorization.projectName;
+        window.location.href = `/admin/action-converter?content=${content}&tweetId=${tweetId}&category=${encodeURIComponent(category || '')}`;
+      }
+
+      function copyResults() {
+        if (!currentTweet || !currentAnalysis || !currentCategorization) return;
+
+        const text = `Tweet Analysis Report\n====================\n\nAuthor: ${currentTweet.author}\nDate: ${currentTweet.date}\nURL: ${currentTweet.url}\n\nContent:\n${currentTweet.text}\n\nCategorization:\n- Type: ${currentCategorization.analysisType}\n- Category: ${currentCategorization.category || currentCategorization.projectName}\n- Relevance: ${currentCategorization.relevanceScore}%\n- Priority: ${currentCategorization.priority}\n- Summary: ${currentCategorization.summary}\n\nSentiment: ${currentAnalysis.sentiment} (${currentAnalysis.sentimentScore}/100)\n\nTopics:\n${currentAnalysis.topics.map(t => '  • ' + t).join('\n')}\n\nSuggested Actions:\n${currentCategorization.suggestedActions.map(a => '  • ' + a).join('\n')}`;
+
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Results copied to clipboard!', 'success');
+        }).catch(() => {
+          showToast('Failed to copy results', 'error');
+        });
+      }
+
+      function resetForm() {
+        document.getElementById('tweetUrl').value = '';
+        document.getElementById('resultsSection').classList.add('hidden');
+        currentAnalysis = null;
+        currentTweet = null;
+        currentCategorization = null;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = 'slideIn 0.3s ease reverse';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
