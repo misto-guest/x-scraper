@@ -46,3 +46,4 @@ Thumbs.db
 # Embedded repositories
 clawd-control/
 gps-spoofing/
+scripts/drive-uploader/service-account.json
