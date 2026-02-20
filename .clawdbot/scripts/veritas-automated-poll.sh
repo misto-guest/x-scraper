@@ -12,7 +12,7 @@ LOG_DIR="${HOME}/clawd-dmitry/logs"
 LOG_FILE="${LOG_DIR}/veritas-poll.log"
 STATE_FILE="${LOG_DIR}/veritas-poll-state.json"
 AGENT_NAME="${AGENT_NAME:-remote-openclaw}"  # Can be overridden by environment
-POLL_INTERVAL_MINUTES=30
+POLL_INTERVAL_MINUTES=10
 TEST_MODE="${TEST_MODE:-0}"  # Set to 1 to use mock data for testing
 
 # Ensure log directory exists
@@ -208,15 +208,36 @@ update_task_status() {
     fi
 }
 
+# Send heartbeat to agent registry
+send_heartbeat() {
+    # Skip in test mode
+    if [[ "${TEST_MODE}" == "1" ]]; then
+        return 0
+    fi
+    
+    local heartbeat_data='{"status":"online"}'
+    
+    local response=$(curl -s -X POST "${VERITAS_API}/agents/register/${AGENT_NAME}/heartbeat" \
+        -H "X-API-Key: ${AGENT_KEY}" \
+        -H "Content-Type: application/json" \
+        -d "${heartbeat_data}" \
+        --max-time 10 \
+        2>&1) || true
+    
+    # Silently ignore heartbeat failures (non-critical)
+    return 0
+}
+
 # Task processing functions
 extract_agent_tasks() {
     local tasks_json="$1"
     local agent="$2"
     
-    # Find tasks assigned to this agent (by tag or name)
+    # Find tasks assigned to this agent (by agent field, assignee, tag, or title)
     local result
     result=$(echo "${tasks_json}" | jq "
         [.[] | select(
+            .agent == \"${agent}\" or
             .assignee == \"${agent}\" or 
             (.tags[]? // \"\") == \"#${agent}\" or
             (.title | contains(\"${agent}\"))
@@ -284,6 +305,9 @@ process_tasks() {
 poll_veritas() {
     log_info "Starting Veritas Kanban poll for ${AGENT_NAME}"
     
+    # Send heartbeat to agent registry
+    send_heartbeat
+    
     # Check if we should poll (rate limiting)
     local last_poll=$(get_state "lastPollTimestamp")
     local current_time=$(date +%s)
@@ -305,6 +329,14 @@ poll_veritas() {
     
     if [[ -z "${tasks_json}" ]] || [[ "${tasks_json}" == "null" ]]; then
         log_error "Failed to fetch tasks from API"
+        return 1
+    fi
+    
+    # Extract data array from response (API returns {success: true, data: [...]})
+    tasks_json=$(echo "${tasks_json}" | jq -r '.data // empty')
+    
+    if [[ -z "${tasks_json}" ]] || [[ "${tasks_json}" == "null" ]]; then
+        log_error "Failed to extract tasks from API response"
         return 1
     fi
     

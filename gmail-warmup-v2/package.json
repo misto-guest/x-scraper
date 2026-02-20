@@ -1,0 +1,32 @@
+{
+  "name": "gmail-warmup-v2",
+  "version": "2.0.0",
+  "description": "Gmail account warmup automation with AdsPower V2 API integration, profile management, and scheduling",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js --test",
+    "import": "node index.js --import",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "gmail",
+    "warmup",
+    "adspower",
+    "automation",
+    "puppeteer"
+  ],
+  "author": "Dmitry's Sub-Agent",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^22.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
