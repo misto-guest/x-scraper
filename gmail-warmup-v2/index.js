@@ -52,14 +52,30 @@ async function initialize() {
     await fs.mkdir(CONFIG.screenshotDir, { recursive: true });
 
     // Initialize AdsPower V2 client
-    console.log('📡 Connecting to AdsPower V2 API...');
+    console.log('📡 Initializing AdsPower V2 client...');
     adspowerClient = new AdsPowerV2Client(CONFIG.adspower);
-    
-    const connectionTest = await adspowerClient.testConnection();
-    if (!connectionTest.success) {
-        console.warn(`⚠️  AdsPower connection warning: ${connectionTest.message}`);
+
+    // Test connection with timeout (skip if ADSPOWER_SKIP_CONNECTION is set)
+    if (process.env.ADSPOWER_SKIP_CONNECTION !== 'true') {
+        try {
+            const connectionTest = await Promise.race([
+                adspowerClient.testConnection(),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Connection timeout after 5s')), 5000)
+                )
+            ]);
+            if (!connectionTest.success) {
+                console.warn(`⚠️  AdsPower connection warning: ${connectionTest.message}`);
+                console.warn('⚠️  Continuing in offline mode...');
+            } else {
+                console.log('✅ AdsPower V2 connected');
+            }
+        } catch (error) {
+            console.warn(`⚠️  AdsPower connection failed: ${error.message}`);
+            console.warn('⚠️  Continuing in offline mode...');
+        }
     } else {
-        console.log('✅ AdsPower V2 connected');
+        console.log('⏭️  AdsPower connection test skipped');
     }
 
     // Initialize profile manager

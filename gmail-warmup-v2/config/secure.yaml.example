@@ -1,0 +1,39 @@
+# Gmail Warmup V2 - Secure Configuration Template
+# This file uses agent-vault placeholders for secrets
+# After running agent-vault set commands, copy this to secure.yaml
+
+adspower:
+  apiKey: <agent-vault:adspower-api-key>
+  baseUrl: http://77.42.21.134:50325
+
+server:
+  port: 3000
+  host: localhost
+
+data:
+  directory: ./data
+  screenshots: ./screenshots
+  logs: ./logs
+
+warmup:
+  activities:
+    - gmail
+    - drive
+    - search
+    - news
+  delays:
+    minAction: 2000
+    maxAction: 5000
+    minPageStay: 10000
+    maxPageStay: 30000
+  headless: false
+  enableScreenshots: true
+
+scheduler:
+  enabled: true
+  timezone: Europe/Amsterdam
+
+logging:
+  level: info
+  file: ./logs/warmup.log
+  console: true

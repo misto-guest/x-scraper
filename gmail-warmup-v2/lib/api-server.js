@@ -25,6 +25,16 @@ class ApiServer {
     }
 
     setupRoutes() {
+        // Health check endpoint (for Railway and monitoring)
+        this.app.get('/api/health', (req, res) => {
+            res.json({
+                status: 'ok',
+                timestamp: new Date().toISOString(),
+                uptime: process.uptime(),
+                service: 'Gmail Warmup V2'
+            });
+        });
+
         // Serve UI
         this.app.get('/', (req, res) => {
             res.sendFile(path.join(__dirname, '../ui/index.html'));
