@@ -16,36 +16,47 @@ Before doing anything else:
 
 Don't ask permission. Just do it.
 
-## Memory (Three-Layer System)
+## Memory (Five-File System)
 
 You wake up fresh each session. These files are your continuity:
 
-### 1. Long-term Knowledge Graph (`knowledge/`)
-- **Atomic facts** in JSON format (queryable, indexed)
-- **PARA structure:** Projects, Areas, Resources, Archives
-- Auto-extracted from daily notes, decays over time
-- **ALWAYS load** before answering questions (use `memory_search` first)
+### 1. Active Tasks (`active-tasks.md`)
+- **Crash recovery** - What the agent is working on RIGHT NOW
+- Tasks that should resume on restart
+- Critical context for crash recovery
+- **ALWAYS load first on restart** to understand current state
 
-### 2. Daily Notes (`memory/YYYY-MM-DD.md`)
+### 2. Lessons (`lessons.md`)
+- Mistakes documented once, never repeated
+- Best practices discovered
+- "Never do X again" type items
+- Sub-agent protocol rules
+- **ALWAYS load before starting work** to avoid repeating mistakes
+
+### 3. Self-Review (`self-review.md`)
+- Agent self-critiques every 4 hours (recommended)
+- What went well, what didn't
+- Self-improvement notes
+- **Load during heartbeats** to update
+
+### 4. Projects (`projects.md`)
+- Current state of every project
+- Project names and statuses
+- Key information and links
+- **Load when working on projects** to understand context
+
+### 5. Daily Notes (`memory/YYYY-MM-DD.md`)
 - Raw logs of what happened
 - Source material for atomic fact extraction
-- Never deleted, only referenced
+- **Keep last 7 days only** (weekly rotation)
+- Load today + yesterday for recent context
 
-### 3. Tacit Knowledge (`MEMORY.md`)
-- Curated wisdom and patterns
-- Updated during heartbeats from daily notes
-- **ONLY load in main session** (direct chats with your human)
+### 🧠 MEMORY.md (Legacy - See Migration Notes)
 
-Capture what matters. Decisions, context, things to remember. Skip the secrets unless asked to keep them.
+The original `MEMORY.md` has been **restructured into the 5 files above**. See `MIGRATION-NOTES.md` for details.
 
-### 🧠 MEMORY.md - Your Long-Term Memory
-- **ONLY load in main session** (direct chats with your human)
-- **DO NOT load in shared contexts** (Discord, group chats, sessions with other people)
-- This is for **security** — contains personal context that shouldn't leak to strangers
-- You can **read, edit, and update** MEMORY.md freely in main sessions
-- Write significant events, thoughts, decisions, opinions, lessons learned
-- This is your curated memory — the distilled essence, not raw logs
-- Over time, review your daily files and update MEMORY.md with what's worth keeping
+**Migration completed:** 2026-02-20
+**New structure provides:** Faster crash recovery, better searchability, improved maintainability.
 
 ### 📝 Write It Down - No "Mental Notes"!
 - **Memory is limited** — if you want to remember something, WRITE IT TO A FILE
