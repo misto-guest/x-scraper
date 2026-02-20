@@ -221,3 +221,81 @@ Veritas Kanban → Task → Dmitry → Chrome DevTools MCP → Data → Complete
 - Easier onboarding for new skills
 
 ---
+
+## QA Testing Best Practices
+
+### Rule: Real Browser Testing, Not HTML Fetching
+
+**Added:** 2026-02-20
+
+**❌ BAD Practice:** Using `web_fetch` or `curl` for QA
+```bash
+# Only fetches HTML, misses runtime issues
+web_fetch https://example.com
+curl https://example.com
+```
+
+**Why it fails:**
+- Only verifies HTML loads
+- Doesn't test JavaScript execution
+- Misses broken links (404s)
+- Doesn't catch runtime errors
+- No visual validation
+- Misses CORS/network issues
+
+**✅ GOOD Practice:** Real Chrome browser visit
+```bash
+# Use browser tool for actual QA
+browser action=open targetUrl=https://example.com
+browser action=screenshot
+browser action=snapshot
+```
+
+**Why it works:**
+- ✅ Tests actual user experience
+- ✅ Catches broken links (404s)
+- ✅ Validates JavaScript execution
+- ✅ Detects CORS issues
+- ✅ Visual screenshot verification
+- ✅ Network request inspection
+- ✅ Console error detection
+
+**Example from Supalinks Dashboard:**
+- ❌ `web_fetch` showed perfect HTML
+- ✅ Real browser revealed all example links (`supalinks.cc/summer-sale`, etc.) are **404 broken**
+- Mock data points to non-existent domains
+
+**Rule:** Always QA with real Chrome browser. Never rely on HTML fetching alone.
+
+**Documentation:** Update AGENTS.md → QA Testing section
+
+---
+
+### CRITICAL: Always Ask User "Does It Load Correctly?" After Browser QA
+
+**Added:** 2026-02-20
+
+**Mandatory Question:** After ANY browser-based QA, MUST ask user: **"Does it load correctly?"**
+
+**Why:**
+- Screenshot might look different on user's screen
+- Browser extensions can interfere
+- Responsive design issues not visible in single viewport
+- User's eye catches issues agent misses
+- Design perception is subjective
+
+**Protocol:**
+1. Open page in real Chrome browser
+2. Take screenshot
+3. Show screenshot to user
+4. **ASK: "Does this load correctly for you?"**
+5. Wait for user confirmation before marking QA complete
+
+**Example from Supalinks Dashboard:**
+- Agent thought: "Perfect Lighthouse scores, must be good"
+- User saw: "DESIGN STILL SEEMS BROKEN TO ME!"
+- Lesson: Agent cannot judge design quality alone - user must verify
+
+**Rule:** Never assume QA is complete without user visual confirmation.
+
+---
