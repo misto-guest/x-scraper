@@ -1,10 +1,11 @@
 {
-  "lastPoll": "2026-02-19T03:30:22+01:00",
-  "lastPollTimestamp": 1771468222,
+  "lastPoll": "2026-02-20T10:24:21:z",
+  "lastPollTimestamp": 1771583061,
   "notifiedTasks": [
-    "test-task-1",
-    "test-task-2"
+    "task_20260218_9pzp1I",
+    "task_20260218_x5dolM",
+    "task_20260218_AqQfHG"
   ],
-  "lastError": null,
-  "pollCount": 22
+  "lastError": "null",
+  "pollCount": 25
 }
