@@ -1,0 +1,180 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Links - Supalinks 2.0">
+  <div class="container py-8">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Links</h1>
+        <p class="text-muted-foreground">
+          Manage and organize all your links
+        </p>
+      </div>
+      <button class="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+        + Create Link
+      </button>
+    </div>
+
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="relative flex-1 max-w-md">
+        <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          type="search"
+          placeholder="Search links..."
+          class="w-full rounded-lg border bg-background pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+      <div class="flex items-center gap-2">
+        <select class="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          <option>All Status</option>
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+        <select class="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          <option>Sort by: Recent</option>
+          <option>Sort by: Clicks</option>
+          <option>Sort by: Name</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="rounded-xl border bg-card shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="border-b bg-muted/50">
+            <tr class="text-left text-sm">
+              <th class="px-6 py-3 font-medium">Link</th>
+              <th class="px-6 py-3 font-medium">Destination</th>
+              <th class="px-6 py-3 font-medium">Clicks</th>
+              <th class="px-6 py-3 font-medium">Status</th>
+              <th class="px-6 py-3 font-medium">Created</th>
+              <th class="px-6 py-3 font-medium text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="links-table-body" class="divide-y">
+            <!-- Links will be rendered here by client-side JS -->
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between border-t px-6 py-4">
+        <p class="text-sm text-muted-foreground">
+          Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">2,453</span> links
+        </p>
+        <div class="flex items-center gap-2">
+          <button class="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted" disabled>
+            Previous
+          </button>
+          <button class="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Mock data for links
+  const links = [
+    {
+      id: '1',
+      slug: 'summer-sale',
+      title: 'Summer Sale Campaign',
+      originalUrl: 'https://example.com/summer-sale-2024',
+      clicks: 12543,
+      active: true,
+      createdAt: '2024-01-15',
+    },
+    {
+      id: '2',
+      slug: 'product-launch',
+      title: 'New Product Launch',
+      originalUrl: 'https://example.com/new-product',
+      clicks: 8234,
+      active: true,
+      createdAt: '2024-01-14',
+    },
+    {
+      id: '3',
+      slug: 'referral-program',
+      title: 'Referral Program',
+      originalUrl: 'https://example.com/referrals',
+      clicks: 5621,
+      active: true,
+      createdAt: '2024-01-13',
+    },
+    {
+      id: '4',
+      slug: 'webinar-signup',
+      title: 'Webinar Registration',
+      originalUrl: 'https://example.com/webinar-signup',
+      clicks: 3892,
+      active: false,
+      createdAt: '2024-01-12',
+    },
+    {
+      id: '5',
+      slug: 'newsletter',
+      title: 'Newsletter Signup',
+      originalUrl: 'https://example.com/newsletter',
+      clicks: 2145,
+      active: true,
+      createdAt: '2024-01-11',
+    },
+  ];
+
+  // Render links in the table
+  const tableBody = document.getElementById('links-table-body');
+  if (tableBody) {
+    tableBody.innerHTML = links.map(link => `
+      <tr class="transition-colors hover:bg-muted/50">
+        <td class="px-6 py-4">
+          <div>
+            <div class="font-medium">${link.title || link.slug}</div>
+            <div class="text-sm text-muted-foreground">supalinks.cc/${link.slug}</div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="max-w-xs truncate text-sm text-muted-foreground" title="${link.originalUrl}">
+            ${link.originalUrl}
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="font-medium">${link.clicks.toLocaleString()}</div>
+        </td>
+        <td class="px-6 py-4">
+          ${link.active
+            ? '<span class="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-600">Active</span>'
+            : '<span class="inline-flex items-center rounded-full bg-gray-500/10 px-2.5 py-0.5 text-xs font-medium text-gray-600">Inactive</span>'
+          }
+        </td>
+        <td class="px-6 py-4">
+          <div class="text-sm text-muted-foreground">${link.createdAt}</div>
+        </td>
+        <td class="px-6 py-4 text-right">
+          <div class="flex items-center justify-end gap-2">
+            <button class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="Copy">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+            <button class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="Analytics">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </button>
+            <button class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive" title="Delete">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+</script>

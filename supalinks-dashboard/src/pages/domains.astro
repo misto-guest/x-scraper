@@ -1,0 +1,132 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Domains - Supalinks 2.0">
+  <div class="container py-8">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Custom Domains</h1>
+        <p class="text-muted-foreground">
+          Configure and manage your custom domains
+        </p>
+      </div>
+      <button class="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+        + Add Domain
+      </button>
+    </div>
+
+    <!-- Default Domain -->
+    <div class="mb-8 rounded-xl border bg-card p-6 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold">supalinks.cc</h3>
+            <p class="text-sm text-muted-foreground">Default domain • All links use this by default</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center rounded-full bg-green-500/10 px-3 py-1 text-sm font-medium text-green-600">
+            ✓ Active
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Domains List -->
+    <div class="space-y-4">
+      <h2 class="text-lg font-semibold">Your Custom Domains</h2>
+
+      <div class="rounded-xl border bg-card p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10">
+              <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold">brand.yourcompany.com</h3>
+              <p class="text-sm text-muted-foreground">Added on Jan 15, 2024</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center rounded-full bg-green-500/10 px-3 py-1 text-sm font-medium text-green-600">
+              ✓ Verified
+            </span>
+            <button class="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
+              Settings
+            </button>
+            <button class="rounded-lg border px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
+              Remove
+            </button>
+          </div>
+        </div>
+        <div class="mt-4 rounded-lg bg-muted/50 p-4">
+          <p class="text-sm font-medium">DNS Configuration</p>
+          <div class="mt-2 space-y-1 text-sm text-muted-foreground">
+            <p><span class="font-mono">Type:</span> CNAME</p>
+            <p><span class="font-mono">Name:</span> brand</p>
+            <p><span class="font-mono">Value:</span> cname.supalinks.cc</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500/10">
+              <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold">links.yourcompany.com</h3>
+              <p class="text-sm text-muted-foreground">Added on Jan 20, 2024</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center rounded-full bg-orange-500/10 px-3 py-1 text-sm font-medium text-orange-600">
+              Pending Verification
+            </span>
+            <button class="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
+              Verify
+            </button>
+            <button class="rounded-lg border px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
+              Remove
+            </button>
+          </div>
+        </div>
+        <div class="mt-4 rounded-lg bg-orange-500/10 p-4">
+          <p class="text-sm font-medium text-orange-600">⚠️ Verification Required</p>
+          <p class="mt-2 text-sm text-muted-foreground">
+            Add the following DNS record to verify your domain ownership:
+          </p>
+          <div class="mt-2 space-y-1 text-sm font-mono text-muted-foreground">
+            <p>Type: TXT</p>
+            <p>Name: @</p>
+            <p>Value: supalinks-verify=abc123def456</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to Add Section -->
+    <div class="mt-8 rounded-xl border bg-card p-6 shadow-sm">
+      <h2 class="mb-4 text-lg font-semibold">How to Add a Custom Domain</h2>
+      <ol class="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+        <li>Click the "Add Domain" button above</li>
+        <li>Enter your domain name (e.g., links.yourcompany.com)</li>
+        <li>Add the CNAME record to your DNS provider</li>
+        <li>Wait for DNS propagation (usually takes a few minutes to 48 hours)</li>
+        <li>Click "Verify" to confirm domain ownership</li>
+        <li>Start creating links with your custom domain!</li>
+      </ol>
+    </div>
+  </div>
+</Layout>

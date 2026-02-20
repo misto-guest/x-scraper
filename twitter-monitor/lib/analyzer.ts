@@ -17,15 +17,10 @@ export interface RelevanceResult {
 export class RelevanceAnalyzer {
   /**
    * Analyze tweet relevance based on keywords
+   * Fixed to avoid N+1 query issues
    */
   async analyzeTweet(tweetContent: string, profileId: string): Promise<RelevanceResult> {
-    // Get keywords for this profile
-    const profileKeywords = await prisma.profileKeyword.findMany({
-      where: { profileId },
-      include: { keyword: true },
-    });
-
-    // Also get global keywords (keywords not tied to any specific profile)
+    // Fetch both profile-specific and global keywords in a single optimized query
     const allKeywords = await prisma.keyword.findMany({
       where: {
         OR: [
@@ -33,12 +28,18 @@ export class RelevanceAnalyzer {
           { profileKeywords: { none: {} } }, // Global keywords
         ],
       },
+      select: {
+        id: true,
+        word: true,
+        category: true,
+        isNegative: true,
+      },
     });
 
     const matchedKeywords: KeywordMatch[] = [];
     const content = tweetContent.toLowerCase();
 
-    // Check each keyword
+    // Check each keyword against tweet content
     for (const keyword of allKeywords) {
       if (content.includes(keyword.word.toLowerCase())) {
         matchedKeywords.push({

@@ -1,0 +1,158 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Campaigns - Supalinks 2.0">
+  <div class="container py-8">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Campaigns</h1>
+        <p class="text-muted-foreground">
+          Organize and track your marketing campaigns
+        </p>
+      </div>
+      <button class="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+        + Create Campaign
+      </button>
+    </div>
+
+    <!-- Campaigns Grid -->
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Active Campaigns -->
+      <div class="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
+        <div class="mb-4 flex items-start justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500/10">
+            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-600">
+            Active
+          </span>
+        </div>
+        <h3 class="text-lg font-semibold">Summer Sale 2024</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Promote summer products with targeted links
+        </p>
+        <div class="mt-4 flex items-center justify-between text-sm">
+          <span class="text-muted-foreground">15 links</span>
+          <span class="font-medium">23.5K clicks</span>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <a href="#" class="flex-1 rounded-lg border px-3 py-1.5 text-center text-sm hover:bg-muted">
+            View
+          </a>
+          <a href="#" class="flex-1 rounded-lg bg-primary px-3 py-1.5 text-center text-sm text-primary-foreground hover:bg-primary/90">
+            Analytics
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
+        <div class="mb-4 flex items-start justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10">
+            <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+            </svg>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-600">
+            Active
+          </span>
+        </div>
+        <h3 class="text-lg font-semibold">Product Launch</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          New product announcement and pre-orders
+        </p>
+        <div class="mt-4 flex items-center justify-between text-sm">
+          <span class="text-muted-foreground">8 links</span>
+          <span class="font-medium">18.2K clicks</span>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <a href="#" class="flex-1 rounded-lg border px-3 py-1.5 text-center text-sm hover:bg-muted">
+            View
+          </a>
+          <a href="#" class="flex-1 rounded-lg bg-primary px-3 py-1.5 text-center text-sm text-primary-foreground hover:bg-primary/90">
+            Analytics
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
+        <div class="mb-4 flex items-start justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-500/10">
+            <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-600">
+            Active
+          </span>
+        </div>
+        <h3 class="text-lg font-semibold">Referral Program</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          User referral and reward tracking
+        </p>
+        <div class="mt-4 flex items-center justify-between text-sm">
+          <span class="text-muted-foreground">12 links</span>
+          <span class="font-medium">12.8K clicks</span>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <a href="#" class="flex-1 rounded-lg border px-3 py-1.5 text-center text-sm hover:bg-muted">
+            View
+          </a>
+          <a href="#" class="flex-1 rounded-lg bg-primary px-3 py-1.5 text-center text-sm text-primary-foreground hover:bg-primary/90">
+            Analytics
+          </a>
+        </div>
+      </div>
+
+      <!-- Paused Campaigns -->
+      <div class="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md opacity-75">
+        <div class="mb-4 flex items-start justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-500/10">
+            <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-gray-500/10 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+            Paused
+          </span>
+        </div>
+        <h3 class="text-lg font-semibold">Webinar Series</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Educational webinar registration links
+        </p>
+        <div class="mt-4 flex items-center justify-between text-sm">
+          <span class="text-muted-foreground">6 links</span>
+          <span class="font-medium">4.2K clicks</span>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <a href="#" class="flex-1 rounded-lg border px-3 py-1.5 text-center text-sm hover:bg-muted">
+            View
+          </a>
+          <a href="#" class="flex-1 rounded-lg border px-3 py-1.5 text-center text-sm hover:bg-muted">
+            Resume
+          </a>
+        </div>
+      </div>
+
+      <!-- Create New Campaign Card -->
+      <div class="flex rounded-xl border-2 border-dashed bg-card p-6 shadow-sm transition-all hover:border-primary/50 hover:shadow-md">
+        <div class="flex w-full flex-col items-center justify-center text-center">
+          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <h3 class="mt-4 text-lg font-semibold">Create Campaign</h3>
+          <p class="mt-1 text-sm text-muted-foreground">
+            Start organizing your links into campaigns
+          </p>
+          <button class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90">
+            Get Started
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

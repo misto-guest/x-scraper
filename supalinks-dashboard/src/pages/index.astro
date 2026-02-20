@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DashboardStats from '../components/DashboardStats';
+import RecentLinks from '../components/RecentLinks';
+import QuickActions from '../components/QuickActions';
+---
+
+<Layout title="Supalinks 2.0 - Dashboard">
+  <div class="container py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <p class="text-muted-foreground">
+        Manage your links and track performance
+      </p>
+    </div>
+
+    <DashboardStats />
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-7">
+      <div class="lg:col-span-4">
+        <RecentLinks />
+      </div>
+      <div class="lg:col-span-3">
+        <QuickActions />
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* Fade in animation for dashboard elements */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
