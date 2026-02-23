@@ -1,0 +1,47 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./components/**/*.{html,js}",
+    "./preview.html",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '{{colors.primary}}',
+        secondary: '{{colors.secondary}}',
+        accent: '{{colors.accent}}',
+        background: '{{colors.background}}',
+        surface: '{{colors.surface}}',
+        text: '{{colors.text}}',
+        border: '{{colors.border}}',
+        success: '{{colors.success}}',
+        warning: '{{colors.warning}}',
+        error: '{{colors.error}}',
+        info: '{{colors.info}}',
+      },
+      fontFamily: {
+        heading: [{{{fonts.heading}}}],
+        body: [{{{fonts.body}}}],
+        accent: [{{{fonts.accent}}}],
+      },
+      fontSize: {
+        'heading-xl': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'heading-lg': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
+        'heading-md': ['1.75rem', { lineHeight: '1.3', letterSpacing: '0' }],
+        'heading-sm': ['1.25rem', { lineHeight: '1.4', letterSpacing: '0' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.6' }],
+        'body-md': ['1rem', { lineHeight: '1.6' }],
+        'body-sm': ['0.875rem', { lineHeight: '1.5' }],
+      },
+      borderRadius: {
+        'theme': '0.25rem',
+        'theme-lg': '0.5rem',
+      },
+      boxShadow: {
+        'theme': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'theme-lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+      }
+    },
+  },
+  plugins: [],
+}

@@ -1,0 +1,35 @@
+adspower:
+  apiKey: 746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329
+  baseUrl: http://95.217.224.154:50325
+
+server:
+  port: 3000
+  host: localhost
+
+data:
+  directory: ./data
+  screenshots: ./screenshots
+  logs: ./logs
+
+warmup:
+  activities:
+    - gmail
+    - drive
+    - search
+    - news
+  delays:
+    minAction: 2000
+    maxAction: 5000
+    minPageStay: 10000
+    maxPageStay: 30000
+  headless: false
+  enableScreenshots: true
+
+scheduler:
+  enabled: true
+  timezone: Europe/Amsterdam
+
+logging:
+  level: info
+  file: ./logs/warmup.log
+  console: true

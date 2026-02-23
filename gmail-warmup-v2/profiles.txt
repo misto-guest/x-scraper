@@ -1,0 +1,17 @@
+# Gmail Warmup Batch Configuration
+
+# Add your 50 profile IDs here (one per line)
+# Lines starting with # are comments and will be ignored
+
+# Example:
+# k12am9a2
+# k12am9a3
+# k12am9a4
+
+# Production profiles:
+k12am9a2
+
+# Add remaining 49 profiles below...
+# profile_id_2
+# profile_id_3
+# etc.

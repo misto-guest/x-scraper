@@ -1,0 +1,185 @@
+{
+  "auditId": "audit-1771864730988",
+  "timestamp": "2026-02-23T16:38:50.990Z",
+  "duration": 0,
+  "findings": [
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "warmup-single.js",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "index.js",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "lib/security-auditor.js",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "lib/adspower-v2-client.js",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "README.md",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "RAILWAY-DEPLOYMENT.md",
+      "matches": 3,
+      "description": "Found 3 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "QUICK-DEPLOY.md",
+      "matches": 2,
+      "description": "Found 2 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "IMPLEMENTATION-SUMMARY.md",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "DEPLOYMENT-OPTIONS.md",
+      "matches": 7,
+      "description": "Found 7 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "DEPLOYMENT-GUIDE.md",
+      "matches": 2,
+      "description": "Found 2 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "DEPLOY-RAILWAY-COMPLETE.md",
+      "matches": 2,
+      "description": "Found 2 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "AGENT-VAULT-READY.md",
+      "matches": 3,
+      "description": "Found 3 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "setup-agent-vault.sh",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "deploy-railway.sh",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "railway.yaml",
+      "matches": 2,
+      "description": "Found 2 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "Exposed Token",
+      "severity": "high",
+      "issue": "AdsPower API Key",
+      "file": "config/secure.yaml",
+      "matches": 1,
+      "description": "Found 1 instance(s) of AdsPower API Key",
+      "recommendation": "Remove from code and use environment variables"
+    },
+    {
+      "category": "File Permissions",
+      "severity": "medium",
+      "issue": "Overly permissive file",
+      "file": "config/secure.yaml",
+      "permission": "644",
+      "description": "File has permissions 644",
+      "recommendation": "Restrict to owner only (chmod 600)"
+    },
+    {
+      "category": "Dependency",
+      "severity": "medium",
+      "issue": "Potentially vulnerable package",
+      "package": "express",
+      "currentVersion": "4.18.2",
+      "description": "express may have known vulnerabilities",
+      "recommendation": "Update to latest version: npm update express"
+    },
+    {
+      "category": "Hardcoded Secret",
+      "severity": "high",
+      "issue": "Hardcoded credential detected",
+      "file": "warmup-single.js",
+      "count": 1,
+      "description": "Found 1 hardcoded secret(s)",
+      "recommendation": "Use environment variables for credentials"
+    }
+  ],
+  "summary": {
+    "critical": 0,
+    "high": 17,
+    "medium": 2,
+    "low": 0,
+    "info": 0
+  }
+}

@@ -1,9 +1,10 @@
 # AdsPower Setup & Learnings
 
-**Last Updated:** 2026-02-03
+**Last Updated:** 2026-02-23
 **Account:** rebel@ri.eu / contact@rebelinternet.eu
 **API Key:** 746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329
-**API URL:** http://127.0.0.1:50325
+**API URL:** http://95.217.224.154:50325
+**BROWSER_API_KEY:** Required in X-Api-Key header for Puppeteer connections
 
 ---
 
@@ -147,6 +148,32 @@ The script attempts multiple cookie consent selectors:
 1. Added 5-second delay after profile launch before Puppeteer connection
 2. Used correct WebSocket URL from API response: `result.ws.puppeteer`
 3. Set `defaultViewport: null` to use browser's default viewport
+4. **NEW:** Added `X-Api-Key` header for authentication (see below)
+
+### X-Api-Key Header Requirement (2026-02-23)
+
+**Important:** When connecting to AdsPower browser via Puppeteer, you must now include the `X-Api-Key` header.
+
+```javascript
+const browser = await puppeteer.connect({
+  browserWSEndpoint: wsUrlModified,
+  defaultViewport: null,
+  headers: {
+    Host: "localhost",
+    "X-Api-Key": BROWSER_API_KEY  // Required for authentication
+  }
+});
+```
+
+**Environment Variable:**
+```bash
+export BROWSER_API_KEY=746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329
+```
+
+**Notes:**
+- The API key is the same as the main AdsPower API key
+- This header is required for all Puppeteer connections to the browser
+- Without this header, connection attempts will fail
 
 ### Deprecated waitForTimeout
 

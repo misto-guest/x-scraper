@@ -7,7 +7,11 @@
     "start": "node index.js",
     "test": "node index.js --test",
     "import": "node index.js --import",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "warmup:single": "node warmup-single.js",
+    "warmup:batch": "node warmup-batch.js",
+    "deploy:railway": "bash deploy-railway.sh",
+    "deploy:verify": "node scripts/verify-deployment.js"
   },
   "keywords": [
     "gmail",

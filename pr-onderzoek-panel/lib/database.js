@@ -51,4 +51,5 @@ export function initDatabase() {
   return db
 }
 
-export default initDatabase()
+// Export the function for manual initialization
+export default initDatabase

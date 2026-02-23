@@ -1,156 +1,269 @@
-# ✅ GMAIL WARMUP V2 - READY FOR RAILWAY DEPLOYMENT
+# 🚀 Quick Deploy - Gmail Warmup V2
 
-## 🎯 Quick Deployment (3 Minutes)
+## TL;DR - Two Ways to Deploy
 
-### Step 1: Go to Railway Project
-**URL:** https://railway.com/project/e28de789-eac6-40cf-9965-fb0561578955
-
-### Step 2: Add New Service
-1. Click **"New Service"** button
-2. Select **"Deploy from GitHub repo"**
-3. Search for: `gmail-warmup-v2`
-4. Click **"Deploy"**
-
-### Step 3: Set Environment Variables
-After service is created:
-
-1. Click on the new service
-2. Go to **"Variables"** tab
-3. Add these variables:
-
-```
-PORT=3000
-ADSPOWER_API_KEY=746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329
-ADSPOWER_BASE_URL=http://77.42.21.134:50325
-NODE_ENV=production
-```
-
-4. Click **"Save Variables"**
-
-### Step 4: Add Persistent Volume (Paid Feature)
-1. Go to **"Volumes"** tab
-2. Click **"New Volume"**
-3. Name: `gmail-data`
-4. Mount path: `/app/data`
-5. Click **"Create Volume"**
-
-### Step 5: Redeploy
-1. Click **"Deploy"** button
-2. Wait for deployment to complete (~2 minutes)
-3. Click on **"URL"** to access your dashboard
-
----
-
-## 🎉 What You'll Get
-
-✅ **Persistent Cloud Deployment**
-- Always online
-- Auto-restart on failure
-- Railway monitoring
-
-✅ **Full Warmup Execution**
-- AdsPower connectivity from Railway
-- All features enabled
-- Scale to 100+ profiles
-
-✅ **Production-Ready**
-- Health monitoring
-- Automatic backups
-- SSL certificates
-- Custom domains (optional)
-
----
-
-## 🔧 Post-Deployment
-
-### Test Your Deployment:
+### 1. ☁️ Railway (5 minutes, easiest)
 ```bash
-# Get your Railway URL
-railway domain
+cd /Users/northsea/clawd-dmitry/gmail-warmup-v2
+./deploy-railway.sh
+```
+**Result:** `https://your-app.up.railway.app`
 
-# Test health endpoint
-curl https://your-project.railway.app/api/health
+### 2. 🖥️ VPS (30 minutes, production-ready)
+**Best for:** Direct AdsPower access, better performance
+**Providers:** DigitalOcean ($6/mo), Hetzner (~€4/mo)
 
-# Import profiles from AdsPower
-curl -X POST https://your-project.railway.app/api/import
+See `DEPLOYMENT-GUIDE.md` for full VPS instructions.
 
-# Run test warmup
-curl -X POST https://your-project.railway.app/api/profiles/YOUR_PROFILE_ID/run
+---
+
+## ⚡ Railway Deployment (Recommended for Quick Start)
+
+### What You Get
+- ✅ Web dashboard in 5 minutes
+- ✅ HTTPS automatically
+- ✅ Auto-scaling
+- ✅ Built-in monitoring
+- ✅ Free tier available ($5 credit)
+
+### Requirements
+- Railway account (free): https://railway.app
+- Railway CLI: `npm install -g @railway/cli`
+- AdsPower server accessible from internet
+
+### Quick Deploy
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Navigate to project
+cd /Users/northsea/clawd-dmitry/gmail-warmup-v2
+
+# Deploy
+./deploy-railway.sh
 ```
 
-### Access Dashboard:
-Open Railway URL in browser for beautiful web UI!
+### Get Your URL
+```bash
+railway domain
+```
+
+### Test It
+```bash
+# Health check
+curl https://your-app.up.railway.app/api/health
+
+# Open in browser
+open https://your-app.up.railway.app
+```
 
 ---
 
-## 📊 Scaling to 100+ Profiles
+## ⚠️ Important: AdsPower Connectivity
 
-Once deployed:
-1. Import profiles from AdsPower
-2. Configure staggered schedules (1-2 minutes apart)
-3. Monitor via dashboard
-4. Scale as needed
+### The Issue
+Railway runs in the cloud. Your app needs to reach AdsPower at `95.217.224.154`.
 
-Railway handles:
-- Horizontal scaling
-- Load balancing
-- Automatic restarts
-- Resource management
+### Three Options:
 
----
+**Option A: AdsPower has public WebSocket port (Easiest)**
+- Port 8080 already open on AdsPower server
+- Just deploy - it will work ✅
 
-## 💰 Cost
+**Option B: Open WebSocket port**
+```bash
+# On AdsPower server (95.217.224.154)
+sudo ufw allow from 0.0.0.0/0 to any port 8080
+```
 
-**Starter:** $5/month (testing, 10 profiles)
-**Pro:** $20/month (100+ profiles)
-**Scale:** $50-100/month (unlimited scaling)
+**Option C: Use VPS instead** (see below)
 
 ---
 
-## ⚠️ Important
+## 🖥️ VPS Deployment (Recommended for Production)
 
-**AdsPower Server Firewall:**
-Your AdsPower server (77.42.21.134:50325) MUST allow connections from Railway IPs.
+### Why VPS?
+- ✅ Same network/close to AdsPower server
+- ✅ Better WebSocket performance
+- ✅ Full control
+- ✅ Cheaper at scale
+- ✅ Can run batch jobs reliably
 
-**Railway IPs:** https://docs.railway.app/faq/ip-ranges
+### Recommended Setup
 
-Add these IPs to your AdsPower server firewall whitelist!
+**VPS Provider:** Hetzner (€4-6/mo) or DigitalOcean ($6/mo)
+
+**Location:** Choose datacenter close to AdsPower server (Finland/Germany)
+
+**Specs:** 2GB RAM, 1 CPU, 40GB SSD
+
+### Quick Commands
+
+```bash
+# SSH into your VPS
+ssh root@your-vps-ip
+
+# Install dependencies
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs nginx
+
+# Install PM2
+sudo npm install -g pm2
+
+# Clone your repo
+cd /opt
+git clone <your-github-repo> gmail-warmup
+cd gmail-warmup
+
+# Install
+npm install
+
+# Start
+pm2 start index.js --name gmail-warmup
+pm2 startup
+pm2 save
+```
+
+See `DEPLOYMENT-GUIDE.md` for complete VPS setup with Nginx + SSL.
 
 ---
 
-## 📁 What's Deployed
+## 🎯 Decision Guide
 
-✅ Complete Gmail Warmup V2 system (2,400+ lines of code)
-✅ Web dashboard with beautiful UI
-✅ Full API endpoints
-✅ Scheduler and cron jobs
-✅ Puppeteer automation
-✅ AdsPower integration
-✅ All documentation
+### Choose Railway if:
+- ✅ Want to test quickly
+- ✅ Don't have VPS yet
+- ✅ Ok with cloud latency
+- ✅ AdsPower WebSocket accessible
+
+### Choose VPS if:
+- ✅ Running 50+ profiles
+- ✅ Need reliability
+- ✅ Want better performance
+- ✅ Cost matters at scale
 
 ---
 
-## 🚀 Next Steps After Deployment
+## 📊 Current Status
 
-1. **Import Profiles**
+**Local Server:** ✅ Running on `http://localhost:3457`
+
+**Ready to Deploy:** ✅
+- Dockerfile created
+- Railway config ready
+- Environment variables prepared
+- Deployment scripts ready
+
+**Files Ready:**
+- ✅ `Dockerfile` - Container image
+- ✅ `railway.yaml` - Railway config
+- ✅ `deploy-railway.sh` - One-click deploy
+- ✅ `.env.example` - Environment template
+- ✅ `DEPLOYMENT-GUIDE.md` - Full guide
+
+---
+
+## 🔧 Pre-Deployment Checklist
+
+### For Railway:
+- [ ] Railway account created
+- [ ] Railway CLI installed
+- [ ] AdsPower server allows connections from Railway IPs
+- [ ] `.env` file configured (or use Railway variables)
+- [ ] `profiles.txt` updated with profile IDs
+
+### For VPS:
+- [ ] VPS provisioned
+- [ ] Can SSH into VPS
+- [ ] VPS can reach AdsPower server (test: `curl http://95.217.224.154:50325`)
+- [ ] Domain name (optional) pointed to VPS
+- [ ] PM2 installed
+- [ ] Nginx installed (for SSL)
+
+---
+
+## 🚀 Deploy Now!
+
+### Option 1: Railway (5 min)
+```bash
+cd /Users/northsea/clawd-dmitry/gmail-warmup-v2
+./deploy-railway.sh
+```
+
+### Option 2: VPS (30 min)
+See `DEPLOYMENT-GUIDE.md` for step-by-step VPS setup.
+
+---
+
+## 📱 After Deployment
+
+1. **Access Web Dashboard**
+   - Railway: `https://your-app.up.railway.app`
+   - VPS: `http://your-vps-ip` or `https://your-domain.com`
+
+2. **Test Connection**
    ```bash
-   curl -X POST https://your-project.railway.app/api/import
+   curl https://your-domain.com/api/test-connection
    ```
 
-2. **Test One Profile**
-   - Open dashboard
-   - Select profile
-   - Click "Run Now"
-   - Check logs
+3. **Add Profiles**
+   - Via web UI
+   - Or import from AdsPower
 
-3. **Scale Up**
-   - Add schedules
-   - Configure timing
-   - Monitor performance
+4. **Run First Warmup**
+   - Via web UI (click "Run" button)
+   - Or API: `POST /api/warmup/:profileId`
+
+5. **Set Up Batch Schedule**
+   ```bash
+   # Crontab on VPS
+   0 9 * * * cd /opt/gmail-warmup && node warmup-batch.js --file profiles.txt --parallel 5
+   ```
 
 ---
 
-**Ready to deploy? Go to:**
-👉 https://railway.com/project/e28de789-eac6-40cf-9965-fb0561578955
+## 📞 Need Help?
 
-**Follow the 5 steps above and you'll be live in 3 minutes!** 🚀
+**Documentation:**
+- `DEPLOYMENT-GUIDE.md` - Full deployment guide
+- `WEB-APP-GUIDE.md` - Web app documentation
+- `SETUP-COMPLETE.md` - Feature overview
+
+**Common Issues:**
+- WebSocket connection failed → Check AdsPower firewall
+- Port already in use → Change PORT env variable
+- AdsPower unreachable → Test connectivity first
+
+---
+
+## ✨ What You're Deploying
+
+**Features:**
+- 🌐 Beautiful web dashboard
+- 📊 Real-time statistics
+- ⚙️ Profile management (CRUD)
+- 🚀 Single and batch warmup
+- 📅 Automated scheduling
+- 📋 Activity logs
+- 📸 Screenshot capture
+- 🔄 Import from AdsPower
+
+**Tech Stack:**
+- Backend: Node.js + Express
+- Frontend: Vanilla JavaScript
+- Database: JSON files (simple, portable)
+- Automation: Puppeteer + AdsPower
+- Deployment: Docker + Railway/VPS
+
+---
+
+**Ready? Deploy now!** 🚀
+
+```bash
+cd /Users/northsea/clawd-dmitry/gmail-warmup-v2
+./deploy-railway.sh
+```

@@ -16,13 +16,22 @@ class AdsPowerV2Client {
         this.baseUrl = config.baseUrl || 'http://77.42.21.134:50325';
         this.apiVersion = 'v2';
         this.timeout = config.timeout || 30000;
+        this.retryDelay = config.retryDelay || 1000; // Initial retry delay
+        this.maxRetries = config.maxRetries || 3;
     }
 
     /**
-     * Make API request to AdsPower V2
+     * Delay helper for rate limiting
      */
-    async request(endpoint, method = 'GET', data = null) {
-        return new Promise((resolve, reject) => {
+    async delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Make API request to AdsPower V2 with retry logic
+     */
+    async request(endpoint, method = 'GET', data = null, retryCount = 0) {
+        return new Promise(async (resolve, reject) => {
             const url = `${this.baseUrl}/api/${this.apiVersion}${endpoint}`;
             const urlObj = new URL(url);
 
@@ -51,6 +60,23 @@ class AdsPowerV2Client {
                         // V2 API returns { code: 0, data: {...} } on success
                         if (response.code === 0) {
                             resolve(response.data || response);
+                        } else if (response.msg && response.msg.includes('Too many request')) {
+                            // Rate limit hit - retry with exponential backoff
+                            if (retryCount < this.maxRetries) {
+                                const delay = this.retryDelay * Math.pow(2, retryCount);
+                                console.log(`⚠️  Rate limit hit, retrying in ${delay}ms... (attempt ${retryCount + 1}/${this.maxRetries})`);
+                                
+                                setTimeout(async () => {
+                                    try {
+                                        const result = await this.request(endpoint, method, data, retryCount + 1);
+                                        resolve(result);
+                                    } catch (error) {
+                                        reject(error);
+                                    }
+                                }, delay);
+                            } else {
+                                reject(new Error(`Rate limit exceeded after ${this.maxRetries} retries`));
+                            }
                         } else {
                             reject(new Error(`API Error: ${response.msg || response.message || 'Unknown error'}`));
                         }
@@ -60,8 +86,23 @@ class AdsPowerV2Client {
                 });
             });
 
-            req.on('error', (error) => {
-                reject(new Error(`Connection failed: ${error.message}`));
+            req.on('error', async (error) => {
+                // Retry on connection errors
+                if (retryCount < this.maxRetries) {
+                    const delay = this.retryDelay * Math.pow(2, retryCount);
+                    console.log(`⚠️  Connection error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${this.maxRetries})`);
+                    
+                    setTimeout(async () => {
+                        try {
+                            const result = await this.request(endpoint, method, data, retryCount + 1);
+                            resolve(result);
+                        } catch (err) {
+                            reject(err);
+                        }
+                    }, delay);
+                } else {
+                    reject(new Error(`Connection failed after ${this.maxRetries} retries: ${error.message}`));
+                }
             });
 
             req.on('timeout', () => {
@@ -161,12 +202,16 @@ class AdsPowerV2Client {
 
         // Extract CDP connection details
         if (result && result.ws && result.puppeteer_port) {
+            // Extract the server IP from baseUrl
+            const serverMatch = this.baseUrl.match(/http:\/\/([^:]+)/);
+            const serverIP = serverMatch ? serverMatch[1] : '95.217.224.154';
+
             return {
                 success: true,
                 profile_id: profileId,
                 ws_url: result.ws,
                 puppeteer_port: result.puppeteer_port,
-                cdp_url: `ws://77.42.21.134:8080/port/${result.puppeteer_port}`,
+                cdp_url: `ws://${serverIP}:8080/port/${result.puppeteer_port}`,
                 user_data_dir: result.user_data_dir,
                 browser_pid: result.browser_pid
             };
@@ -280,19 +325,50 @@ class AdsPowerV2Client {
     }
 
     /**
-     * Batch operation - Get multiple profiles
+     * Batch operation - Get multiple profiles with rate limiting
      */
     async getAllProfilesPaginated(maxProfiles = 500) {
         const allProfiles = [];
         let page = 1;
         let hasMore = true;
+        const pageSize = 50; // Smaller batch size to avoid rate limiting
 
         while (hasMore && allProfiles.length < maxProfiles) {
-            const result = await this.getProfiles({ page, page_size: 100 });
-            
-            if (result.list && result.list.length > 0) {
-                allProfiles.push(...result.list);
-                hasMore = result.list.length === 100;
+            try {
+                // Add delay between pages to avoid rate limiting
+                if (page > 1) {
+                    await this.delay(1000); // 1 second delay between pages
+                }
+
+                const result = await this.getProfiles({ page, page_size: pageSize });
+                
+                if (result.list && result.list.length > 0) {
+                    allProfiles.push(...result.list);
+                    hasMore = result.list.length === pageSize;
+                    page++;
+                    
+                    console.log(`   Fetched ${allProfiles.length} profiles so far...`);
+                } else {
+                    hasMore = false;
+                }
+            } catch (error) {
+                console.error(`   Error fetching page ${page}:`, error.message);
+                // Continue to next page on error
+                page++;
+                
+                // Max 3 consecutive errors
+                if (page > 3 && allProfiles.length === 0) {
+                    throw error;
+                }
+            }
+        }
+
+        return {
+            profiles: allProfiles,
+            total: allProfiles.length,
+            pages: page - 1
+        };
+    }
                 page++;
             } else {
                 hasMore = false;

@@ -1,26 +1,5 @@
 [
   {
-    "id": "k12am9a2",
-    "name": "Test Profile 1 - patmcgee727@gmail.com",
-    "email": "patmcgee727@gmail.com",
-    "adspowerProfileId": "k12am9a2",
-    "status": "active",
-    "schedule": {
-      "enabled": false,
-      "frequency": "daily",
-      "hour": 9,
-      "minute": 0,
-      "timezone": "Europe/Amsterdam"
-    },
-    "stats": {
-      "totalRuns": 0,
-      "lastRun": null,
-      "lastStatus": null,
-      "successRate": 0
-    },
-    "createdAt": "2026-02-20T12:00:00.000Z"
-  },
-  {
     "id": "k12am9a3",
     "name": "Test Profile 2",
     "email": "test2@gmail.com",
@@ -40,5 +19,33 @@
       "successRate": 0
     },
     "createdAt": "2026-02-20T12:00:00.000Z"
+  },
+  {
+    "profile_id": "k12am9a2",
+    "name": "Pat McGee",
+    "email": "patmcgee727@gmail.com",
+    "group_id": null,
+    "status": "error",
+    "config": {
+      "activities": [
+        "gmail",
+        "search",
+        "news"
+      ],
+      "frequency": "daily",
+      "hour": 9,
+      "minute": 0,
+      "timezone": "Europe/Amsterdam",
+      "enabled": true
+    },
+    "metadata": {
+      "createdAt": "2026-02-23T10:14:44.171Z",
+      "lastRun": null,
+      "lastStatus": null,
+      "totalRuns": 0,
+      "successfulRuns": 0,
+      "failedRuns": 0,
+      "updatedAt": "2026-02-23T11:31:35.361Z"
+    }
   }
 ]

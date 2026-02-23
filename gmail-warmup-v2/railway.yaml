@@ -1,0 +1,36 @@
+# Gmail Warmup V2 - Railway Deployment
+
+services:
+  # Warmup Web App & API
+  - type: web
+    name: gmail-warmup-v2
+    runtime: nodejs
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 18789
+      - key: NODE_ENV
+        value: production
+      - key: ADSPOWER_API_KEY
+        value: 746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329
+      - key: ADSPOWER_BASE_URL
+        value: http://95.217.224.154:50325
+      - key: ADSPOWER_SERVER_IP
+        value: 95.217.224.154
+    healthcheckPath: /api/health
+
+  # Cron Job for Batch Warmup (Railway Cron)
+  - type: cron
+    name: gmail-warmup-batch
+    schedule: "0 9 * * *"  # 9 AM daily
+    command: node warmup-batch.js --file profiles.txt --parallel 5
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADSPOWER_API_KEY
+        value: 746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329
+      - key: ADSPOWER_BASE_URL
+        value: http://95.217.224.154:50325
+      - key: ADSPOWER_SERVER_IP
+        value: 95.217.224.154

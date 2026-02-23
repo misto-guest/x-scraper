@@ -19,6 +19,7 @@ const ProfileManager = require('./lib/profile-manager');
 const WarmupScheduler = require('./lib/scheduler');
 const WarmupEngine = require('./lib/warmup-engine');
 const ApiServer = require('./lib/api-server');
+const SecurityAuditor = require('./lib/security-auditor');
 const path = require('path');
 
 // Configuration
@@ -26,11 +27,13 @@ const CONFIG = {
     dataDir: path.join(__dirname, 'data'),
     screenshotDir: path.join(__dirname, 'screenshots'),
     adspower: {
-        apiKey: '746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329',
-        baseUrl: 'http://77.42.21.134:50325'
+        apiKey: process.env.ADSPOWER_API_KEY || '746feb8ab409fbb27a0377a864279e6c000f879a7a0e5329',
+        baseUrl: process.env.ADSPOWER_BASE_URL || 'http://95.217.224.154:50325',
+        serverIP: process.env.ADSPOWER_SERVER_IP || '95.217.224.154'
     },
     server: {
-        port: process.env.PORT || 3000
+        port: process.env.PORT || 3000,
+        host: process.env.HOST || 'localhost'
     }
 };
 
@@ -85,11 +88,65 @@ async function initialize() {
     const { profiles } = profileManager.getAllProfiles();
     console.log(`✅ Loaded ${profiles.length} profiles`);
 
+    // Auto-import profiles from AdsPower if none exist
+    if (profiles.length === 0) {
+        console.log('\n📥 No profiles found. Auto-importing from AdsPower...');
+        try {
+            // Wait 5 seconds to avoid rate limiting on startup
+            console.log('   ⏳ Waiting 5 seconds before API call to avoid rate limiting...');
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            console.log('   📡 Fetching profiles from AdsPower...');
+            const adspowerProfiles = await adspowerClient.getAllProfilesPaginated(500);
+            
+            if (adspowerProfiles.profiles && adspowerProfiles.profiles.length > 0) {
+                console.log(`   📦 Found ${adspowerProfiles.profiles.length} profiles`);
+                const importResult = await profileManager.importProfiles(adspowerProfiles.profiles);
+                console.log(`✅ Imported ${importResult.imported} profiles from AdsPower`);
+            } else {
+                console.log('ℹ️  No profiles found in AdsPower. Add profiles manually via the web dashboard.');
+            }
+        } catch (error) {
+            if (error.message.includes('Too many request') || error.message.includes('Rate limit')) {
+                console.log('⚠️  AdsPower rate limit hit during auto-import.');
+                console.log('   Please use the "📥 Import from AdsPower" button in the web dashboard.');
+                console.log('   Tip: Wait a few minutes before retrying to avoid rate limits.');
+            } else if (error.message.includes('Connection failed')) {
+                console.log('⚠️  Cannot connect to AdsPower API.');
+                console.log('   Check that AdsPower is running and accessible.');
+                console.log('   You can add profiles manually via the web dashboard.');
+            } else {
+                console.log(`⚠️  Auto-import failed: ${error.message}`);
+                console.log('   You can import profiles manually via the web dashboard.');
+            }
+        }
+        console.log('');
+    }
+
     // Initialize scheduler
     console.log('🕐 Initializing scheduler...');
     scheduler = new WarmupScheduler(profileManager);
     await scheduler.initialize();
     console.log(`✅ Scheduler running with ${scheduler.scheduledTasks.size} schedules`);
+
+    // Initialize security auditor
+    console.log('🔒 Initializing security auditor...');
+    const securityAuditor = new SecurityAuditor({
+        projectDir: __dirname,
+        reportDir: path.join(__dirname, 'security-audits')
+    });
+
+    // Schedule daily security audit (runs at 3 AM every day)
+    scheduler.scheduleTask('security-audit', '0 3 * * *', async () => {
+        console.log('\n🔒 Running scheduled security audit...');
+        try {
+            await securityAuditor.runAudit();
+            console.log('✅ Security audit complete');
+        } catch (error) {
+            console.error('❌ Security audit failed:', error.message);
+        }
+    });
+    console.log('✅ Security auditor initialized (daily audit at 3 AM)');
 
     // Initialize API server
     console.log('🌐 Starting API server...');

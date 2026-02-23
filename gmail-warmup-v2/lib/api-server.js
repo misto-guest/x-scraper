@@ -161,13 +161,49 @@ class ApiServer {
         });
 
         // API: Import profiles from AdsPower
+        // API: Import profiles from AdsPower
         this.app.post('/api/import', async (req, res) => {
             try {
+                console.log('\n📥 Manual import request received from web dashboard');
+                console.log('   ⏳ Waiting 3 seconds before API call to avoid rate limiting...');
+                
+                // Add delay to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                console.log('   📡 Fetching profiles from AdsPower...');
                 const adspowerProfiles = await this.adspowerClient.getAllProfilesPaginated(500);
+                
+                if (!adspowerProfiles.profiles || adspowerProfiles.profiles.length === 0) {
+                    return res.json({ 
+                        success: true, 
+                        imported: 0, 
+                        message: 'No profiles found in AdsPower' 
+                    });
+                }
+                
+                console.log(`   📦 Found ${adspowerProfiles.profiles.length} profiles`);
+                console.log('   📥 Importing profiles...');
+                
                 const result = await this.profileManager.importProfiles(adspowerProfiles.profiles);
+                
+                console.log(`✅ Import complete: ${result.imported} profiles imported\n`);
+                
                 res.json(result);
             } catch (error) {
-                res.status(500).json({ success: false, error: error.message });
+                console.error('❌ Import failed:', error.message);
+                
+                let friendlyMessage = error.message;
+                if (error.message.includes('Too many request') || error.message.includes('Rate limit')) {
+                    friendlyMessage = 'AdsPower rate limit exceeded. Please wait a few minutes and try again.';
+                } else if (error.message.includes('Connection failed')) {
+                    friendlyMessage = 'Cannot connect to AdsPower. Please check that AdsPower is running.';
+                }
+                
+                res.status(500).json({ 
+                    success: false, 
+                    error: friendlyMessage,
+                    details: error.message 
+                });
             }
         });
 
@@ -259,6 +295,80 @@ class ApiServer {
             try {
                 const result = await this.adspowerClient.testConnection();
                 res.json(result);
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        // API: Get activity logs
+        this.app.get('/api/logs', (req, res) => {
+            try {
+                const logFile = path.join(__dirname, '../logs/warmup.log');
+                fs.readFile(logFile, 'utf8', (err, data) => {
+                    if (err) {
+                        return res.json({ success: true, logs: [] });
+                    }
+
+                    // Parse log lines
+                    const logs = data.split('\n')
+                        .filter(line => line.trim())
+                        .map(line => {
+                            try {
+                                // Parse log format: [timestamp] [level] message
+                                const match = line.match(/\[([^\]]+)\]\s+\[([^\]]+)\]\s+(.+)/);
+                                if (match) {
+                                    return {
+                                        timestamp: match[1],
+                                        level: match[2],
+                                        message: match[3]
+                                    };
+                                }
+                                return null;
+                            } catch (e) {
+                                return null;
+                            }
+                        })
+                        .filter(log => log !== null)
+                        .reverse()
+                        .slice(0, 100); // Last 100 logs
+
+                    res.json({ success: true, logs });
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        // API: Clear logs
+        this.app.post('/api/logs/clear', (req, res) => {
+            try {
+                const logFile = path.join(__dirname, '../logs/warmup.log');
+                fs.writeFile(logFile, '', (err) => {
+                    if (err) {
+                        return res.status(500).json({ success: false, error: err.message });
+                    }
+                    res.json({ success: true, message: 'Logs cleared' });
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        // API: Get batch results
+        this.app.get('/api/batch/results', (req, res) => {
+            try {
+                const resultsFile = path.join(__dirname, '../data/batch-results.json');
+                fs.readFile(resultsFile, 'utf8', (err, data) => {
+                    if (err) {
+                        return res.json({ success: true, results: [] });
+                    }
+                    try {
+                        const results = JSON.parse(data);
+                        res.json({ success: true, results });
+                    } catch (e) {
+                        res.json({ success: true, results: [] });
+                    }
+                });
             } catch (error) {
                 res.status(500).json({ success: false, error: error.message });
             }

@@ -109,6 +109,68 @@ class WarmupScheduler extends EventEmitter {
     }
 
     /**
+     * Schedule a generic task (not tied to a specific profile)
+     * @param {string} taskId - Unique identifier for the task
+     * @param {string} cronExpression - Cron expression
+     * @param {Function} callback - Function to execute when scheduled
+     */
+    scheduleTask(taskId, cronExpression, callback) {
+        // Validate cron expression
+        if (!cron.validate(cronExpression)) {
+            throw new Error(`Invalid cron expression: ${cronExpression}`);
+        }
+
+        // Remove existing task if any
+        if (this.scheduledTasks.has(taskId)) {
+            this.scheduledTasks.get(taskId).task.stop();
+            this.scheduledTasks.delete(taskId);
+        }
+
+        // Create scheduled task
+        const task = cron.schedule(cronExpression, async () => {
+            try {
+                await callback();
+            } catch (error) {
+                console.error(`❌ Error executing scheduled task ${taskId}:`, error.message);
+            }
+        }, {
+            scheduled: true,
+            timezone: process.env.TZ || 'UTC'
+        });
+
+        // Store task
+        this.scheduledTasks.set(taskId, {
+            task,
+            cronExpression,
+            callback,
+            registeredAt: new Date().toISOString(),
+            type: 'generic'
+        });
+
+        console.log(`✅ Generic task '${taskId}' scheduled: ${cronExpression}`);
+        
+        return { success: true, taskId, cronExpression };
+    }
+
+    /**
+     * Unschedule a generic task
+     */
+    unscheduleTask(taskId) {
+        const scheduledTask = this.scheduledTasks.get(taskId);
+        
+        if (!scheduledTask) {
+            return { success: false, error: 'Task not found' };
+        }
+
+        scheduledTask.task.stop();
+        this.scheduledTasks.delete(taskId);
+        
+        console.log(`✅ Task '${taskId}' unscheduled`);
+        
+        return { success: true, taskId };
+    }
+
+    /**
      * Unregister a schedule
      */
     async unregisterSchedule(profileId) {
