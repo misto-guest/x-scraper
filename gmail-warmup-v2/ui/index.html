@@ -640,7 +640,8 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3456/api';
+        // Dynamic API base URL - works on both local and Railway
+        const API_BASE = window.location.origin + '/api';
         let allProfiles = [];
 
         // Load data on page load
