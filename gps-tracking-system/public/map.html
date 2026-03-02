@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Tracking System - Map</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    #fullMap { height: calc(100vh - 64px); }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <!-- Navigation -->
+  <nav class="bg-blue-600 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <h1 class="text-2xl font-bold">🗺️ GPS Tracking System</h1>
+        <div class="space-x-4">
+          <a href="index.html" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+          <a href="routes.html" class="hover:bg-blue-700 px-3 py-2 rounded">Routes</a>
+          <a href="map.html" class="hover:bg-blue-700 px-3 py-2 rounded">Map</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Full Screen Map -->
+  <div id="fullMap"></div>
+
+  <!-- Business Info Panel -->
+  <div id="infoPanel" class="fixed bottom-4 right-4 w-96 bg-white rounded-lg shadow-xl hidden">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h3 class="font-bold text-gray-800" id="panelTitle">Business Details</h3>
+      <button onclick="closePanel()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="p-4" id="panelContent">
+      <!-- Content will be populated dynamically -->
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    let map;
+    let markers = {};
+
+    // Initialize map
+    function initMap() {
+      // Get URL parameters for initial view
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialLat = urlParams.get('lat');
+      const initialLng = urlParams.get('lng');
+
+      // Set initial view
+      const initialView = initialLat && initialLng ?
+        [initialLat, initialLng] :
+        [52.1, 4.9];
+
+      const initialZoom = initialLat && initialLng ? 14 : 8;
+
+      map = L.map('fullMap').setView(initialView, initialZoom);
+
+      // Add tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Load businesses
+      loadBusinesses();
+    }
+
+    // Load businesses and add markers
+    async function loadBusinesses() {
+      try {
+        const response = await fetch(`${API_URL}/businesses`);
+        const businesses = await response.json();
+
+        businesses.forEach(business => {
+          if (business.lat && business.lng) {
+            // Create custom icon with status indicator
+            const statusColor = business.status === 'active' ? '#10b981' : '#9ca3af';
+
+            const icon = L.divIcon({
+              className: 'custom-marker',
+              html: `<div style="
+                background-color: ${statusColor};
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                cursor: pointer;
+              "></div>`,
+              iconSize: [20, 20],
+              iconAnchor: [10, 10]
+            });
+
+            // Create marker
+            const marker = L.marker([business.lat, business.lng], { icon: icon })
+              .addTo(map)
+              .on('click', () => showBusinessInfo(business));
+
+            markers[business.id] = marker;
+          }
+        });
+
+        // Fit map to show all markers
+        if (Object.keys(markers).length > 0) {
+          const group = new L.featureGroup(Object.values(markers));
+          map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        }
+
+      } catch (error) {
+        console.error('Error loading businesses:', error);
+      }
+    }
+
+    // Show business info panel
+    function showBusinessInfo(business) {
+      const panel = document.getElementById('infoPanel');
+      const title = document.getElementById('panelTitle');
+      const content = document.getElementById('panelContent');
+
+      title.textContent = business.name;
+
+      let html = `
+        <div class="space-y-3">
+          <div>
+            <label class="text-sm text-gray-500">Address</label>
+            <p class="font-medium">${business.address}</p>
+          </div>
+      `;
+
+      if (business.phone) {
+        html += `
+          <div>
+            <label class="text-sm text-gray-500">Phone</label>
+            <p class="font-medium">${business.phone}</p>
+          </div>
+        `;
+      }
+
+      if (business.website) {
+        html += `
+          <div>
+            <label class="text-sm text-gray-500">Website</label>
+            <p><a href="${business.website}" target="_blank" class="text-blue-600 hover:underline">${business.website}</a></p>
+          </div>
+        `;
+      }
+
+      if (business.rating) {
+        html += `
+          <div>
+            <label class="text-sm text-gray-500">Rating</label>
+            <p class="font-medium">⭐ ${business.rating} (${business.reviews_count || 0} reviews)</p>
+          </div>
+        `;
+      }
+
+      if (business.next_visit) {
+        const nextVisit = new Date(business.next_visit).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        html += `
+          <div>
+            <label class="text-sm text-gray-500">Next Visit</label>
+            <p class="font-medium text-green-600">${nextVisit}</p>
+          </div>
+        `;
+      }
+
+      if (business.last_visit) {
+        const lastVisit = new Date(business.last_visit).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        html += `
+          <div>
+            <label class="text-sm text-gray-500">Last Visit</label>
+            <p class="font-medium">${lastVisit}</p>
+          </div>
+        `;
+      }
+
+      if (business.notes) {
+        html += `
+          <div>
+            <label class="text-sm text-gray-500">Notes</label>
+            <p class="text-sm text-gray-600 whitespace-pre-line">${business.notes}</p>
+          </div>
+        `;
+      }
+
+      html += `
+          <div class="pt-3 space-y-2">
+            <button onclick="getDirections(${business.lat}, ${business.lng})"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+              🚗 Get Directions
+            </button>
+            ${business.gmb_url ? `
+              <a href="${business.gmb_url}" target="_blank"
+                class="block text-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded transition">
+                📍 View GMB Profile
+              </a>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = html;
+      panel.classList.remove('hidden');
+    }
+
+    // Close info panel
+    function closePanel() {
+      document.getElementById('infoPanel').classList.add('hidden');
+    }
+
+    // Get directions (opens in Google Maps)
+    function getDirections(lat, lng) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    }
+
+    // Close panel on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closePanel();
+      }
+    });
+
+    // Initialize
+    initMap();
+  </script>
+</body>
+</html>

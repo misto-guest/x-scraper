@@ -1,0 +1,11 @@
+# GPS Tracking System - Cron Jobs
+# Add these to your crontab with: crontab -e
+
+# Daily business data scan at 9:00 AM
+0 9 * * * /Users/northsea/clawd-dmitry/gps-tracking-system/scripts/daily-scan.sh
+
+# Dashboard data update every 6 hours
+0 */6 * * * /Users/northsea/clawd-dmitry/gps-tracking-system/scripts/update-data.sh
+
+# Weekly route report - Monday at 8:00 AM
+0 8 * * 1 /Users/northsea/clawd-dmitry/gps-tracking-system/scripts/weekly-report.sh

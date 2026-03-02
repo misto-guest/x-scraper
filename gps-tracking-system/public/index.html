@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Tracking System - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    #map { height: 400px; }
+    .rating-star { color: #fbbf24; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-blue-600 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <h1 class="text-2xl font-bold">🗺️ GPS Tracking System</h1>
+        <div class="space-x-4">
+          <a href="index.html" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+          <a href="routes.html" class="hover:bg-blue-700 px-3 py-2 rounded">Routes</a>
+          <a href="map.html" class="hover:bg-blue-700 px-3 py-2 rounded">Map</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="stats">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-blue-100 rounded-full">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Total Businesses</p>
+            <p class="text-3xl font-bold" id="totalBusinesses">-</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-full">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Active Businesses</p>
+            <p class="text-3xl font-bold" id="activeBusinesses">-</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-purple-100 rounded-full">
+            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Visits This Month</p>
+            <p class="text-3xl font-bold" id="visitsThisMonth">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Businesses List -->
+    <div class="bg-white rounded-lg shadow mb-8">
+      <div class="px-6 py-4 border-b">
+        <h2 class="text-xl font-bold text-gray-800">All Businesses</h2>
+      </div>
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">Business</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">Address</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">Rating</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">Next Visit</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="businessesTable">
+              <tr>
+                <td colspan="6" class="text-center py-8 text-gray-500">Loading businesses...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Map Preview -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <h2 class="text-xl font-bold text-gray-800">Location Overview</h2>
+      </div>
+      <div class="p-6">
+        <div id="map"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Base URL
+    const API_URL = '/api';
+
+    // Load dashboard stats
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_URL}/dashboard`);
+        const data = await response.json();
+
+        document.getElementById('totalBusinesses').textContent = data.stats.totalBusinesses;
+        document.getElementById('activeBusinesses').textContent = data.stats.activeBusinesses;
+        document.getElementById('visitsThisMonth').textContent = data.stats.visitsThisMonth;
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Load businesses
+    async function loadBusinesses() {
+      try {
+        const response = await fetch(`${API_URL}/businesses`);
+        const businesses = await response.json();
+
+        const tbody = document.getElementById('businessesTable');
+        tbody.innerHTML = '';
+
+        businesses.forEach(business => {
+          const row = document.createElement('tr');
+          row.className = 'border-b hover:bg-gray-50';
+
+          const ratingStars = business.rating ?
+            `<span class="rating-star">★</span> ${business.rating} (${business.reviews_count || 0})` :
+            'N/A';
+
+          const nextVisit = business.next_visit ?
+            new Date(business.next_visit).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
+            'Not scheduled';
+
+          const statusClass = business.status === 'active' ?
+            'bg-green-100 text-green-800' :
+            'bg-gray-100 text-gray-800';
+
+          row.innerHTML = `
+            <td class="py-3 px-4">
+              <div class="font-semibold text-gray-800">${business.name}</div>
+              ${business.phone ? `<div class="text-sm text-gray-500">${business.phone}</div>` : ''}
+            </td>
+            <td class="py-3 px-4 text-sm text-gray-600">${business.address}</td>
+            <td class="py-3 px-4">${ratingStars}</td>
+            <td class="py-3 px-4">${nextVisit}</td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-1 rounded text-xs font-semibold ${statusClass}">${business.status || 'active'}</span>
+            </td>
+            <td class="py-3 px-4">
+              <button onclick="viewOnMap(${business.lat}, ${business.lng})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                View on Map
+              </button>
+            </td>
+          `;
+
+          tbody.appendChild(row);
+        });
+
+        // Initialize map with business locations
+        initMap(businesses);
+      } catch (error) {
+        console.error('Error loading businesses:', error);
+        document.getElementById('businessesTable').innerHTML =
+          '<tr><td colspan="6" class="text-center py-8 text-red-500">Error loading businesses</td></tr>';
+      }
+    }
+
+    // Initialize map
+    function initMap(businesses) {
+      const map = L.map('map').setView([52.1, 4.9], 8);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      businesses.forEach(business => {
+        if (business.lat && business.lng) {
+          const marker = L.marker([business.lat, business.lng]).addTo(map);
+          marker.bindPopup(`
+            <strong>${business.name}</strong><br>
+            ${business.address}<br>
+            ${business.rating ? `Rating: ⭐ ${business.rating}` : ''}
+          `);
+        }
+      });
+    }
+
+    // View location on full map page
+    function viewOnMap(lat, lng) {
+      window.location.href = `map.html?lat=${lat}&lng=${lng}`;
+    }
+
+    // Initialize
+    loadStats();
+    loadBusinesses();
+  </script>
+</body>
+</html>
