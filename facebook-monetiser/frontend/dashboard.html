@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Facebook Monetiser</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-active {
+      border-bottom: 3px solid #7c3aed;
+      color: #7c3aed;
+    }
+    .risk-low { background-color: #d1fae5; color: #065f46; }
+    .risk-medium { background-color: #fef3c7; color: #92400e; }
+    .risk-high { background-color: #fee2e2; color: #991b1b; }
+    .status-pending { background-color: #fef3c7; color: #92400e; }
+    .status-approved { background-color: #d1fae5; color: #065f46; }
+    .status-posted { background-color: #dbeafe; color: #1e40af; }
+    .status-rejected { background-color: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <span class="text-xl font-bold text-purple-600">Facebook Monetiser</span>
+        <span class="text-sm text-gray-400 bg-gray-100 px-2 py-1 rounded">Dashboard</span>
+      </div>
+      <div class="space-x-4">
+        <a href="/" class="text-gray-600 hover:text-purple-600">Home</a>
+        <button onclick="refreshData()" class="text-gray-600 hover:text-purple-600">Refresh</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Tabs -->
+    <div class="bg-white rounded-t-lg shadow-sm border">
+      <div class="flex space-x-8 px-6">
+        <button onclick="showTab('pages')" id="tab-pages" class="py-4 px-2 font-semibold tab-active">
+          Pages
+        </button>
+        <button onclick="showTab('sources')" id="tab-sources" class="py-4 px-2 font-semibold text-gray-500 hover:text-purple-600">
+          Sources & Insights
+        </button>
+        <button onclick="showTab('posts')" id="tab-posts" class="py-4 px-2 font-semibold text-gray-500 hover:text-purple-600">
+          Posts
+        </button>
+        <button onclick="showTab('create')" id="tab-create" class="py-4 px-2 font-semibold text-gray-500 hover:text-purple-600">
+          Create Post
+        </button>
+        <button onclick="showTab('predictions')" id="tab-predictions" class="py-4 px-2 font-semibold text-gray-500 hover:text-purple-600">
+          Predictions
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="bg-white rounded-b-lg shadow p-6">
+      <!-- Pages Tab -->
+      <div id="content-pages" class="tab-content">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Facebook Pages</h2>
+          <button onclick="showAddPageModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+            + Add Page
+          </button>
+        </div>
+        <div id="pages-list" class="space-y-4">
+          <p class="text-gray-500">Loading pages...</p>
+        </div>
+      </div>
+
+      <!-- Sources Tab -->
+      <div id="content-sources" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Sources & Insights</h2>
+          <button onclick="showAddSourceModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+            + Add Source
+          </button>
+        </div>
+        <div id="sources-list" class="space-y-4">
+          <p class="text-gray-500">Loading sources...</p>
+        </div>
+      </div>
+
+      <!-- Posts Tab -->
+      <div id="content-posts" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Generated Posts</h2>
+          <div class="space-x-2">
+            <select id="post-filter" onchange="filterPosts()" class="border rounded px-3 py-2">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="posted">Posted</option>
+            </select>
+          </div>
+        </div>
+        <div id="posts-list" class="space-y-4">
+          <p class="text-gray-500">Loading posts...</p>
+        </div>
+      </div>
+
+      <!-- Create Post Tab -->
+      <div id="content-create" class="tab-content hidden">
+        <h2 class="text-2xl font-bold mb-6">Create New Post</h2>
+        <form id="create-post-form" class="space-y-6 max-w-2xl">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Page</label>
+            <select id="post-page" required class="w-full border rounded-lg px-4 py-2">
+              <option value="">Choose a page...</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
+            <select id="post-type" required class="w-full border rounded-lg px-4 py-2">
+              <option value="image">Image Post</option>
+              <option value="reel">Reel</option>
+              <option value="text">Text Post</option>
+              <option value="carousel">Carousel</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Caption</label>
+            <textarea id="post-caption" rows="4" class="w-full border rounded-lg px-4 py-2" placeholder="Enter your caption..."></textarea>
+            <div id="caption-risk" class="mt-2 text-sm"></div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">First Comment (Optional)</label>
+            <input type="text" id="post-comment" class="w-full border rounded-lg px-4 py-2" placeholder="CTA or engagement question...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Image Prompt (for AI generation)</label>
+            <textarea id="post-image-prompt" rows="2" class="w-full border rounded-lg px-4 py-2" placeholder="Describe the image you want..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Schedule For (Optional)</label>
+            <input type="datetime-local" id="post-schedule" class="w-full border rounded-lg px-4 py-2">
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-2">Generate with AI</h3>
+            <div class="space-x-2">
+              <button type="button" onclick="generateCaption()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Generate Caption
+              </button>
+              <button type="button" onclick="generateComment()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Generate Comment
+              </button>
+              <button type="button" onclick="generateImagePrompt()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Generate Image Prompt
+              </button>
+            </div>
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-semibold">
+              Create Post
+            </button>
+            <button type="button" onclick="analyzeContent()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-semibold">
+              Analyze Risk
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Predictions Tab -->
+      <div id="content-predictions" class="tab-content hidden">
+        <h2 class="text-2xl font-bold mb-6">Performance Predictions</h2>
+        <div id="predictions-list" class="space-y-4">
+          <p class="text-gray-500">Loading predictions...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Add Page -->
+  <div id="add-page-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+      <h3 class="text-xl font-bold mb-4">Add Facebook Page</h3>
+      <form id="add-page-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Page Name</label>
+          <input type="text" name="name" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Page ID</label>
+          <input type="text" name="page_id" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <input type="text" name="category" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">About</label>
+          <textarea name="about" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Followers Count</label>
+          <input type="number" name="followers_count" value="0" class="w-full border rounded px-3 py-2">
+        </div>
+        <input type="hidden" name="country" value="US">
+        <div class="flex space-x-2">
+          <button type="submit" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+            Add Page
+          </button>
+          <button type="button" onclick="closeModal('add-page-modal')" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal for Add Source -->
+  <div id="add-source-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+      <h3 class="text-xl font-bold mb-4">Add Source</h3>
+      <form id="add-source-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Source Type</label>
+          <select name="source_type" required class="w-full border rounded px-3 py-2">
+            <option value="tweet">Tweet</option>
+            <option value="article">Article</option>
+            <option value="case_study">Case Study</option>
+            <option value="video">Video</option>
+            <option value="competitor_post">Competitor Post</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <input type="text" name="title" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">URL</label>
+          <input type="url" name="url" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Author/Platform</label>
+          <input type="text" name="author" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Content Text</label>
+          <textarea name="content_text" rows="3" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+        <div class="flex space-x-2">
+          <button type="submit" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+            Add Source
+          </button>
+          <button type="button" onclick="closeModal('add-source-modal')" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

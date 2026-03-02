@@ -1,0 +1,31 @@
+{
+  "name": "facebook-monetiser",
+  "version": "1.0.0",
+  "description": "Facebook Fan Page Auto-Poster with AI content generation and risk detection",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "echo \"Run API tests manually with curl or Postman\""
+  },
+  "keywords": [
+    "facebook",
+    "automation",
+    "ai",
+    "content-generation",
+    "risk-detection"
+  ],
+  "author": "Facebook Monetiser Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
