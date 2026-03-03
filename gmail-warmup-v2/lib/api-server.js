@@ -21,7 +21,18 @@ class ApiServer {
 
     setupMiddleware() {
         this.app.use(express.json());
-        this.app.use(express.static(path.join(__dirname, '../ui')));
+        
+        // Serve static files with cache-busting headers for HTML
+        this.app.use(express.static(path.join(__dirname, '../ui'), {
+            setHeaders: (res, filepath) => {
+                // Disable caching for HTML files to force reload
+                if (filepath.endsWith('.html')) {
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                }
+            }
+        }));
     }
 
     setupRoutes() {

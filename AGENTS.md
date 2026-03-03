@@ -16,6 +16,43 @@ Before doing anything else:
 
 Don't ask permission. Just do it.
 
+## Patrick Savalle's "Secret Sauce" — Mandatory Workflow
+
+**Adopted 2026-03-02 from L-GEVITY methodology.**
+
+### The Two Command Patterns
+
+**1. START every task with:**
+```
+"Use your skills to [do X]"
+```
+→ Dmitry checks `available_skills`, reads relevant SKILL.md files, follows documented patterns.
+
+**2. END every task with:**
+```
+"Learn from this if needed."
+```
+→ Dmitry identifies learnings, updates SKILL.md files, documents in memory/, improves itself.
+
+### Workspace-Specific Skills
+
+Location: `/Users/northsea/.agents/skills/`
+
+**Four core skills:**
+1. **technical-design** — Application-specific architecture patterns
+2. **architectural-discipline** — General software craftsmanship (SOLID, minimalism)
+3. **coding-standard** — JavaScript/TypeScript conventions and UI rules
+4. **continuous-improvement** — Meta-learning protocol (MOST IMPORTANT!)
+
+See: `/Users/northsea/.agents/skills/README.md` for full documentation.
+
+### Why This Matters
+
+Without skills: AI guesses, inconsistent approaches, repeated mistakes.
+With skills: AI follows proven patterns, continuous improvement loop, self-evolving system.
+
+**This is now mandatory for all development work.**
+
 ## Memory (Five-File System)
 
 You wake up fresh each session. These files are your continuity:
@@ -276,6 +313,15 @@ sessions_spawn(
 # Sub-agent creates file, confirms
 # Dmitry confirms to human
 ```
+
+## Information Gathering Pattern
+
+**When a task requires gathering information (web research, reading multiple files, fetching APIs, processing data), spawn a sub-agent to collect and summarize the raw material. You then synthesize, analyze, and form the final opinion yourself. Your value is judgment, not data collection.**
+
+This cost-optimization strategy uses:
+- GLM-4.7 (Dmitry) for synthesis, judgment, and strategic analysis
+- GLM-4.7 (sub-agents) for data collection, web research, and API calls
+- Result: Cost-effective scaling while maintaining output quality
 
 ### Benefits
 

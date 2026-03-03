@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSources();
   loadPosts();
   loadLogs();
+  checkConfig();
   setupFormHandlers();
 });
 
@@ -683,5 +684,138 @@ function getTimeAgo(date) {
   }
 
   return 'Just now';
+}
+
+// Settings Functions
+
+async function checkConfig() {
+  try {
+    const res = await fetch(`${API_BASE}/config`);
+    const data = await res.json();
+
+    // Update system status badge
+    const modeBadge = document.getElementById('system-mode-badge');
+    if (data.runware_configured || data.openai_configured) {
+      modeBadge.textContent = '✅ AI Mode';
+      modeBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800';
+    } else {
+      modeBadge.textContent = '🔶 Mock Mode';
+      modeBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800';
+    }
+
+    // Update status indicators
+    document.getElementById('status-generation').textContent = data.runware_configured ? '✅ AI Powered' : 'Template-based';
+    document.getElementById('status-generation').className = data.runware_configured ? 'text-green-700' : 'text-yellow-700';
+
+    document.getElementById('status-scraping').textContent = data.firecrawl_configured ? '✅ Auto-scraping' : 'Manual only';
+    document.getElementById('status-scraping').className = data.firecrawl_configured ? 'text-green-700' : 'text-yellow-700';
+
+    // Update API status badges
+    if (data.runware_configured) {
+      document.getElementById('runware-status').textContent = '✅ Configured';
+      document.getElementById('runware-status').className = 'px-2 py-1 rounded text-xs bg-green-100 text-green-800';
+    }
+    if (data.firecrawl_configured) {
+      document.getElementById('firecrawl-status').textContent = '✅ Configured';
+      document.getElementById('firecrawl-status').className = 'px-2 py-1 rounded text-xs bg-green-100 text-green-800';
+    }
+
+    // Display current config
+    const configDiv = document.getElementById('current-config');
+    configDiv.innerHTML = `
+      <p><strong>Runware AI:</strong> ${data.runware_configured ? '✅ Configured' : '❌ Not configured'}</p>
+      <p><strong>Firecrawl:</strong> ${data.firecrawl_configured ? '✅ Configured' : '❌ Not configured'}</p>
+      <p><strong>OpenAI:</strong> ${data.openai_configured ? '✅ Configured' : '❌ Not configured'}</p>
+      <p><strong>Facebook API:</strong> ${data.facebook_configured ? '✅ Configured' : '❌ Not configured'}</p>
+      <p><strong>Environment:</strong> ${data.environment || 'development'}</p>
+      <p class="text-xs text-gray-500 mt-2">API keys are stored securely in environment variables</p>
+    `;
+
+  } catch (error) {
+    console.error('Error checking config:', error);
+    const configDiv = document.getElementById('current-config');
+    configDiv.innerHTML = '<p class="text-red-600">Error checking configuration. Is the server running?</p>';
+  }
+}
+
+async function saveRunwareKey() {
+  const apiKey = document.getElementById('runware-key').value;
+  if (!apiKey) {
+    alert('Please enter an API key');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/config/runware`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert('✅ Runware API key saved! Testing connection...');
+      checkConfig();
+    } else {
+      alert('❌ Error: ' + (data.error || 'Failed to save API key'));
+    }
+  } catch (error) {
+    alert('❌ Error: ' + error.message);
+  }
+}
+
+async function saveFirecrawlKey() {
+  const apiKey = document.getElementById('firecrawl-key').value;
+  if (!apiKey) {
+    alert('Please enter an API key');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/config/firecrawl`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert('✅ Firecrawl API key saved! Testing connection...');
+      checkConfig();
+    } else {
+      alert('❌ Error: ' + (data.error || 'Failed to save API key'));
+    }
+  } catch (error) {
+    alert('❌ Error: ' + error.message);
+  }
+}
+
+async function saveOpenAIKey() {
+  const apiKey = document.getElementById('openai-key').value;
+  if (!apiKey) {
+    alert('Please enter an API key');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/config/openai`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert('✅ OpenAI API key saved!');
+      checkConfig();
+    } else {
+      alert('❌ Error: ' + (data.error || 'Failed to save API key'));
+    }
+  } catch (error) {
+    alert('❌ Error: ' + error.message);
+  }
 }
 

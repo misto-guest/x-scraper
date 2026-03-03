@@ -1,0 +1,16 @@
+node_modules
+.next
+.vercel
+npm-debug.log
+.env.local
+.env
+.DS_Store
+*.log
+coverage
+dist
+build
+.git
+README.md
+*.md
+!package.json
+!package-lock.json

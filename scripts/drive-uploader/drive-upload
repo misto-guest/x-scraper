@@ -1,4 +1,0 @@
-#!/bin/bash
-# Wrapper script for drive uploader
-cd /Users/northsea/clawd-dmitry/scripts/drive-uploader
-node upload.js "$@"

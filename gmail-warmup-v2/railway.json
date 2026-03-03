@@ -3,7 +3,7 @@
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "npm install",
-    "watchPatterns": ["lib/**", "index.js"]
+    "watchPatterns": ["lib/**", "index.js", "ui/**"]
   },
   "deploy": {
     "startCommand": "npm start",

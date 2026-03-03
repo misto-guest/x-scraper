@@ -99,31 +99,6 @@ Veritas Kanban → Task → Dmitry → Chrome DevTools MCP → Data → Complete
 
 ---
 
-## 📤 Google Drive OAuth Uploader (2026-02-17)
-
-**Status:** ✅ Complete (Setup required)
-
-**Location:** `/Users/northsea/clawd-dmitry/scripts/drive-uploader/`
-
-**Purpose:** Upload files to Google Drive via OAuth (service accounts don't work for My Drive)
-
-**Key Files:**
-- `oauth-upload.js` - Main uploader
-- `oauth-credentials.json` - OAuth client credentials
-- `oauth-token.json` - Auto-generated after authorization
-- `setup-wizard.sh` - Interactive setup guide
-
-**Target Folder:**
-- **Name:** OpenClaw Drive Uploads
-- **ID:** 1Q_wBbz1a-m0ZFlElQv9JJ4lGgZinuZBh
-- **URL:** https://drive.google.com/drive/u/0/folders/1Q_wBbz1a-m0ZFlElQv9JJ4lGgZinuZBh
-
-**Max file size:** 100 MB
-
-**Documentation:** `SETUP-OAUTH.md`, `OAUTH-QUICKSTART.md`
-
----
-
 ## 🤖 Bol.com Outreach Bot (2026-02-17)
 
 **Status:** ✅ Complete (Setup required)

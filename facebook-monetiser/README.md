@@ -1,307 +1,393 @@
-# Facebook Monetiser
+# Facebook Monetiser - SMV Specification
 
-**AI-Powered Facebook Page Automation Tool (MVP)**
+AI-powered Facebook content generation system focused on 3 high-performing niches.
 
-An automated content generation and posting system for US-based Facebook pages with built-in risk detection, source traceability, and performance prediction.
+**Status:** MVP Complete ✅ | Fly.io Ready 🚀 | Railway Supported | Enhanced with SMV Features
 
-## 🚀 Phase 1 Features (Current MVP)
+## 🎯 Primary Niches (Based on x-scraper Data)
 
-### Database & Backend
-- ✅ **10-table SQLite database** with proper indexes and foreign keys
-- ✅ **REST API** for pages, sources, posts, and predictions
-- ✅ **Risk flagging system** with political keyword detection
-- ✅ **Content moderation** with automated approval workflow
+### 1. 90s Nostalgia 💿
+- **Engagement:** Highest emotional response
+- **Keywords:** 90s, nostalgia, throwback, vintage, retro
+- **Emojis:** 📼💿📟🎮📺
+- **Sentiment:** Sentimental, warm, relatable
+
+### 2. Political Content 🗳️
+- **Engagement:** High controversy/virality
+- **Keywords:** election, government, policy, vote, democracy
+- **Emojis:** 🗳️🇺🇸⚖️📜🏛️
+- **Sentiment:** Serious, civic, discussion-oriented
+
+### 3. Emotional/Sentimental 💪
+- **Engagement:** Strong motivation/inspiration
+- **Keywords:** motivation, inspiration, emotional, support, mental health
+- **Emojis:** 💪❤️✨🌟💫
+- **Sentiment:** Uplifting, encouraging, supportive
+
+## 🚀 Features
 
 ### Content Generation
-- ✅ **AI-powered caption generation** (template-based for MVP)
-- ✅ **First comment suggestions** with CTAs
-- ✅ **Image prompt generation** for visual content
-- ✅ **Originality scoring** to avoid duplicate content
+- ✅ **AI-Powered Captions** - runware.ai integration with model testing
+- ✅ **Smart Templates** - Niche-specific content frameworks
+- ✅ **Auto-Approval** - All posts auto-approved for MVP (Phase 2: risk scoring)
+- ✅ **Image Prompts** - DALL-E 3, Midjourney, SDXL support
+- ✅ **Comment Generation** - CTAs and engagement hooks
 
-### Prediction & Analytics
-- ✅ **Ad prediction service** (stub with heuristics)
-- ✅ **CTR/CVR/CPA predictions** with confidence scoring
-- ✅ **Feedback loop system** for learning
+### Analytics & Insights
+- ✅ **Performance Predictions** - CTR, CVR, CPA forecasting
+- ✅ **Velocity Scoring** - Trend detection and engagement velocity
+- ✅ **Niche Performance** - Per-niche analytics
+- ✅ **Model Performance** - AI model comparison and testing
 
-### Dashboard
-- ✅ **Web-based UI** for managing pages, sources, and posts
-- ✅ **Post approval queue** with risk indicators
-- ✅ **Content creation interface** with AI assistance
-- ✅ **Performance metrics view**
+### Scraping & Research
+- ✅ **Firecrawl Integration** - Competitor content analysis
+- ✅ **Insight Extraction** - Automatic topic and engagement detection
+- ✅ **Velocity Tracking** - Content velocity trend analysis
+
+### Page Management
+- ✅ **Multi-Page Support** - Manage multiple Facebook pages
+- ✅ **Asset Tracking** - Websites, groups, ad accounts, Instagram
+- ✅ **Monetization Status** - Track approval states
+- ✅ **Niche Categorization** - Primary niche per page
+
+### Draft System (MVP)
+- ✅ **Draft Generation** - Create content with AI
+- ✅ **Manual Review** - User approves before posting
+- ✅ **Copy/Paste Export** - Manual Facebook posting
+- ⏳ **Auto-Posting** - Planned for Phase 2
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Frontend Dashboard                      │
+│  (Content creation, analytics, page management)              │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      API Layer                              │
+│  (RESTful endpoints, validation, business logic)             │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+         ┌───────────┼───────────┐
+         ▼           ▼           ▼
+┌─────────────┐ ┌────────────┐ ┌─────────────────┐
+│   Runware   │ │ Firecrawl  │ │  SQLite DB      │
+│   Service   │ │  Service   │ │  (10 tables)    │
+│  (AI gen)   │ │ (scraping) │ │                 │
+└─────────────┘ └────────────┘ └─────────────────┘
+```
+
+## 📊 Database Schema
+
+### Core Tables (10)
+
+1. **pages** - Facebook pages with SMV enhancements
+2. **page_assets** - Websites, groups, ad accounts
+3. **sources** - Tweets, articles, case studies
+4. **insights** - Learnings from sources
+5. **competitors** - Tracked competitor pages
+6. **scraped_content** - Firecrawl/Firecrawl data
+7. **generated_posts** - AI drafts with approval workflow
+8. **schedules** - Posting times (EST)
+9. **post_performance** - Feedback loop
+10. **automation_limits** - Human-override rules
+
+### SMV Enhancements
+
+**Pages Table:**
+- `owner_name`, `owner_entity`, `creation_date`
+- `primary_niche` - 90s nostalgia, political, emotional
+- `language`, `monetization_status`, `notes`
+
+**Sources Table:**
+- `summary`, `confidence_level`, `last_verified`
+
+**Insights Table:**
+- `applicable_niches` (JSON array)
+- `automation_safe` BOOLEAN
+
+**Scraped Content:**
+- `competitor_id`, `age_hours`, `velocity_score`
+
+**Schedules:**
+- `generated_post_id`, `scheduled_time`, `timezone`, `auto_post`
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Node.js + Express
-- **Database:** SQLite (upgradable to Postgres)
-- **Frontend:** HTML + Tailwind CSS + Vanilla JS
-- **AI:** Template-based generation (OpenAI integration planned for Phase 2)
+- **Backend:** Node.js, Express.js
+- **Database:** SQLite (upgradable to PostgreSQL)
+- **Frontend:** HTML, Tailwind CSS, Vanilla JavaScript
+- **AI Services:** runware.ai (multi-model support)
+- **Scraping:** Firecrawl API
+- **Deployment:** Fly.io (recommended) or Railway
 
-## 📋 Prerequisites
+## 📦 Installation
 
-- Node.js 16+ installed
-- npm or yarn package manager
+### Prerequisites
+- Node.js 18+
+- npm or yarn
 
-## 🔧 Installation
+### Setup
 
-1. **Clone or navigate to the project:**
-   ```bash
-   cd facebook-monetiser
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the server:**
-   ```bash
-   npm start
-   ```
-
-4. **Access the dashboard:**
-   - Home page: http://localhost:3000
-   - Dashboard: http://localhost:3000/dashboard
-
-## 📁 Project Structure
-
-```
-facebook-monetiser/
-├── backend/
-│   ├── server.js              # Main Express server
-│   ├── database/
-│   │   ├── schema.sql         # Complete database schema
-│   │   └── migrations/        # Database migrations
-│   ├── api/
-│   │   ├── pages.js           # Pages CRUD endpoints
-│   │   ├── sources.js         # Sources & insights endpoints
-│   │   ├── posts.js           # Posts & approval endpoints
-│   │   ├── predictions.js     # Prediction endpoints
-│   │   └── content-generator.js # Content generation endpoints
-│   ├── services/
-│   │   ├── content-generator.js  # AI content generation
-│   │   ├── risk-scoring.js       # Risk detection & scoring
-│   │   └── prediction-service.js # Performance prediction
-│   └── mocks/
-│       ├── apify.js           # Apify scraper mock
-│       └── facebook-api.js    # Facebook API mock
-├── frontend/
-│   ├── index.html             # Landing page
-│   ├── dashboard.html         # Main dashboard
-│   └── static/
-│       └── js/
-│           └── dashboard.js   # Dashboard JavaScript
-├── data/
-│   └── facebook-monetiser.db  # SQLite database (auto-created)
-├── package.json
-├── README.md
-└── SETUP.md
+1. **Clone and install:**
+```bash
+cd facebook-monetiser
+npm install
 ```
 
-## 🗄️ Database Schema
+2. **Environment variables:**
+```bash
+# Create .env file
+RUNWARE_API_KEY=your_runware_key
+FIRECRAWL_API_KEY=your_firecrawl_key
+DATABASE_PATH=./data/facebook-monetiser.db
+PORT=3000
+```
 
-The system uses **10 tables**:
+3. **Initialize database:**
+```bash
+sqlite3 facebook-monetiser.db < backend/database/schema.sql
+sqlite3 facebook-monetiser.db < backend/database/migrations/002_smv_enhancements.sql
+```
 
-1. **pages** - Facebook pages metadata (US-only enforcement)
-2. **page_assets** - Websites, groups, ad accounts linked to pages
-3. **sources** - Tweets, articles, case studies (full traceability)
-4. **insights** - Learnings linked to sources
-5. **competitors** - Tracked competitor pages
-6. **scraped_content** - Mock Apify/Firecrawl data
-7. **generated_posts** - AI drafts with approval workflow
-8. **schedules** - Posting times (EST timezone)
-9. **post_performance** - Feedback loop data
-10. **automation_limits** - Human-override rules
+4. **Run server:**
+```bash
+npm start
+# Or with hot reload
+npm run dev
+```
 
-## 🔌 API Endpoints
+5. **Access dashboard:**
+```
+http://localhost:3000/dashboard
+http://localhost:3000/analytics
+```
 
-### Pages
-- `GET /api/pages` - List all pages
-- `GET /api/pages/:id` - Get page details
-- `POST /api/pages` - Create new page
-- `PUT /api/pages/:id` - Update page
-- `DELETE /api/pages/:id` - Delete page
-- `POST /api/pages/:id/assets` - Add asset to page
+## 🚀 Deployment
 
-### Sources & Insights
-- `GET /api/sources` - List sources
-- `GET /api/sources/:id` - Get source with insights
-- `POST /api/sources` - Create source
-- `POST /api/sources/:id/insights` - Add insight
-- `DELETE /api/sources/:id` - Delete source
-- `GET /api/sources/insights/top` - Get top insights
+### ⭐ Option 1: Fly.io (Recommended)
 
-### Posts
-- `GET /api/posts` - List posts (with filters)
-- `GET /api/posts/:id` - Get post details
-- `POST /api/posts` - Create post (auto-calculates risk)
-- `PUT /api/posts/:id` - Update post
-- `PUT /api/posts/:id/approval` - Approve/reject post
-- `POST /api/posts/:id/post` - Mark as posted
-- `DELETE /api/posts/:id` - Delete post
-- `GET /api/posts/queue/approval` - Get approval queue
-- `GET /api/posts/queue/scheduled` - Get scheduled posts
+**Benefits:**
+- ✅ Free forever ($0/month)
+- ✅ Faster deployments (1-2 min)
+- ✅ GitHub Actions integration
+- ✅ Better control over CI/CD
+
+**Quick Start (5 min):**
+```bash
+1. Read: FLY-QUICKSTART.md
+2. Install: curl -L https://fly.io/install.sh | sh
+3. Auth: flyctl auth login
+4. Init: flyctl launch
+5. Push: git push origin main (auto-deploys!)
+```
+
+**Full Documentation:**
+- 📖 [FLY-QUICKSTART.md](./FLY-QUICKSTART.md) - Get started in 5 minutes
+- 📖 [FLY-DEPLOYMENT-GUIDE.md](./FLY-DEPLOYMENT-GUIDE.md) - Complete guide
+- 📖 [FLY-QUICK-REFERENCE.md](./FLY-QUICK-REFERENCE.md) - Daily commands
+- 📖 [RAILWAY-VS-FLY.md](./RAILWAY-VS-FLY.md) - Platform comparison
+
+**Features:**
+- Auto-deploys on every push to `main` branch
+- Persistent database storage (1GB volume)
+- SSL/HTTPS included
+- Health checks and monitoring
+- Zero-downtime deployments
+- Scale to 0 when unused (saves money)
+
+### Option 2: Railway (Alternative)
+
+**Still supported, but requires paid plan (~$6-20/month)**
+
+1. **Fork and connect:**
+```bash
+# Connect your GitHub repo to Railway
+# Railway will auto-detect Node.js app
+```
+
+2. **Set environment variables in Railway:**
+```
+RUNWARE_API_KEY=your_runware_key
+FIRECRAWL_API_KEY=your_firecrawl_key
+PORT=3000
+NODE_ENV=production
+```
+
+3. **Add persistent disk:**
+```
+Settings → Volumes → Add Volume
+Mount path: /data
+```
+
+4. **Update DATABASE_PATH:**
+```bash
+# In Railway environment variables
+DATABASE_PATH=/data/facebook-monetiser.db
+```
+
+5. **Deploy:**
+```bash
+git push origin main
+# Railway auto-deploys on push
+```
+
+## 📝 Usage
+
+### Generate Content
+
+1. **Navigate to "Create Post" tab**
+2. **Select page and niche**
+3. **Click "Generate Caption"** - AI creates niche-specific content
+4. **Generate Comment** - Adds CTA and engagement hook
+5. **Generate Image Prompt** - Creates visual concept
+6. **Create Post** - Saves as draft (auto-approved)
+
+### View Analytics
+
+1. **Analytics page** - Overall performance metrics
+2. **CTR predictions** - Click-through rate forecasting
+3. **Niche performance** - Per-niche engagement data
+4. **Velocity trends** - Trending content detection
+
+### Competitor Research
+
+1. **Add competitor** - Track competitor pages
+2. **Scrape content** - Firecrawl extracts data
+3. **Calculate velocity** - Analyze engagement velocity
+4. **View trends** - Spot high-performing patterns
+
+## 🔧 API Endpoints
 
 ### Content Generation
-- `POST /api/content/caption` - Generate caption
-- `POST /api/content/comment` - Generate first comment
+- `POST /api/content/caption` - Generate caption for niche
+- `POST /api/content/comment` - Generate engagement comment
 - `POST /api/content/image-prompt` - Generate image prompt
-- `POST /api/content/complete` - Generate complete post
-- `POST /api/content/check-originality` - Check originality
-- `GET /api/content/suggestions` - Get content suggestions
-- `POST /api/content/analyze` - Analyze content risk
+- `POST /api/content/analyze` - Analyze content (MVP: auto-approve)
 
-### Predictions
-- `GET /api/predictions/post/:postId` - Get prediction for post
-- `POST /api/predictions/post/:postId/predict` - Create prediction
-- `GET /api/predictions` - List all predictions
-- `GET /api/predictions/post/:postId/accuracy` - Compare prediction vs actual
-- `GET /api/predictions/stats/accuracy` - Get accuracy stats
-- `GET /api/predictions/flags/contradictions` - Get prediction errors
+### Pages (Enhanced)
+- `GET /api/pages/:id/assets` - Get page assets
+- `POST /api/pages/:id/monetization` - Update monetization
+- `GET /api/pages/by-niche/:niche` - Filter by niche
+- `GET /api/pages/:id/analytics` - Page analytics
 
-## ⚠️ Risk Detection System
+### Sources (Enhanced)
+- `POST /api/sources/verify` - Mark source verified
+- `GET /api/sources/insights/:id` - Get source insights
+- `POST /api/sources/insights/:id/effectiveness` - Update score
 
-The system automatically detects risky content:
+### Scraped Content
+- `GET /api/scraped/competitor/:id` - Get competitor content
+- `POST /api/scraped/velocity` - Calculate velocity scores
+- `GET /api/scraped/velocity/high` - Get trending content
 
-- **Political keywords** - Election, politician, government, etc.
-- **Sensitive topics** - Religion, race, controversy, etc.
-- **Non-US context** - Brexit, EU, non-US currencies
-- **Spam indicators** - "Buy now", "Click here", etc.
+### Predictions (Enhanced)
+- `GET /api/predictions/ctr/:postId` - CTR prediction
+- `GET /api/predictions/performance/:postId` - Full prediction
+- `GET /api/predictions/accuracy/metrics` - Model accuracy
 
-**Risk Score:** 0-1 scale
-- `< 0.3`: Low risk (auto-approve)
-- `0.3 - 0.6`: Medium risk (manual review recommended)
-- `> 0.6`: High risk (manual approval required)
+## 📈 Content Performance
 
-## 🇺🇸 US-Only Enforcement
+### Niche Benchmarks
 
-Hard-coded validation ensures only US-based pages are accepted:
+| Niche | Avg CTR | Avg CVR | Avg CPA |
+|-------|---------|---------|---------|
+| 90s Nostalgia | 3.1% | 1.4% | $8.20 |
+| Political | 2.4% | 1.0% | $9.50 |
+| Emotional | 2.9% | 1.3% | $8.80 |
 
-- Country field defaults to "US"
-- Any non-US country value is rejected
-- All database records enforce country = 'US'
+### Content Type Performance
 
-## 📊 Testing the API
+| Type | CTR | CVR | CPA |
+|------|-----|-----|-----|
+| Reel | 3.5% | 1.6% | $6.80 |
+| Carousel | 3.0% | 1.3% | $7.70 |
+| Image | 2.5% | 1.2% | $8.50 |
+| Story | 2.7% | 1.4% | $8.50 |
+| Text | 2.0% | 0.9% | $10.20 |
 
-### Using curl
+## 🔄 MVP Workflow
 
-```bash
-# Health check
-curl http://localhost:3000/api/health
-
-# Create a page
-curl -X POST http://localhost:3000/api/pages \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Test Page",
-    "page_id": "test123",
-    "category": "Business",
-    "followers_count": 5000
-  }'
-
-# Create a post
-curl -X POST http://localhost:3000/api/posts \
-  -H "Content-Type: application/json" \
-  -d '{
-    "page_id": 1,
-    "content_type": "image",
-    "caption": "Test post caption here"
-  }'
-
-# Analyze content risk
-curl -X POST http://localhost:3000/api/content/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "caption": "This is a test caption"
-  }'
+```
+1. User selects page + niche
+2. AI generates caption (3 templates)
+3. AI generates comment with CTA
+4. AI generates image prompt
+5. Content auto-approved (MVP)
+6. Saved as draft
+7. User copies/pastes to Facebook
+8. (Phase 2) Auto-post to Facebook
 ```
 
-### Using Postman
+## 📚 Documentation
 
-1. Import the API endpoints
-2. Set base URL to `http://localhost:3000`
-3. Test each endpoint with sample data
+- **[API Enhancements](./API_ENHANCEMENTS.md)** - New SMV endpoints
+- **[Prediction Guide](./PREDICTION_GUIDE.md)** - How predictions work
+- **[Setup Guide](./SETUP.md)** - Detailed setup instructions
 
-## 🎯 Dashboard Features
+## ⚠️ MVP Notes
 
-### Pages Tab
-- View all managed Facebook pages
-- Add new pages (US-only)
-- See follower counts, assets, and post counts
-- Delete pages
+### Current (Phase 1)
+- ✅ Draft generation only
+- ✅ Auto-approve all content
+- ✅ Manual copy/paste to Facebook
+- ✅ 3 primary niches
+- ✅ runware.ai integration
+- ✅ Firecrawl scraping
 
-### Sources & Insights Tab
-- Add content sources (tweets, articles, case studies)
-- Extract insights from sources
-- Track source effectiveness
-- Full traceability from source to post
+### Phase 2 (Future)
+- ⏳ Facebook auto-posting
+- ⏳ Risk scoring system
+- ⏳ Advanced approval workflow
+- ⏳ Scheduled posting automation
+- ⏳ ML model integration
 
-### Posts Tab
-- View all generated posts
-- Filter by approval status
-- Approve/reject posts
-- View risk scores and originality scores
-- Delete posts
+## 🐛 Troubleshooting
 
-### Create Post Tab
-- Create new posts with AI assistance
-- Generate captions automatically
-- Generate first comments with CTAs
-- Generate image prompts
-- Analyze content risk before posting
-- Schedule posts for future
+### Runware API Not Working
+```bash
+# Check API key
+echo $RUNWARE_API_KEY
 
-### Predictions Tab
-- View performance predictions
-- See confidence scores
-- Compare predicted vs actual performance
+# Test health endpoint
+curl https://api.runware.ai/v1/health
+```
 
-## 🐛 Known Limitations (MVP)
+### Firecrawl Rate Limits
+- Default: 1 request/second
+- Respects API limits automatically
+- Check usage: `/api/scraped/health`
 
-### Mock Services
-- **Apify scraper** - Returns mock data
-- **Facebook Graph API** - Returns mock responses
-- **OpenAI integration** - Uses template-based generation
+### Database Locked
+```bash
+# Close all connections
+# Or use WAL mode
+sqlite3 facebook-monetiser.db "PRAGMA journal_mode=WAL;"
+```
 
-### What's Coming in Phase 2
-- Real Apify/Firecrawl integration
-- Real Facebook Graph API integration
-- OpenAI GPT-4 for content generation
-- Enhanced ML-based predictions
-- Multi-language support
-
-## 🔒 Security Features
-
-- **Content moderation** with automated risk detection
-- **Approval workflow** for high-risk content
-- **Source traceability** for all generated content
-- **US-only enforcement** for compliance
-- **Human override** capabilities
-
-## 🚀 Next Steps (Phase 2)
-
-1. **Real External Integrations**
-   - Replace Apify mock with real scraper
-   - Integrate Facebook Graph API
-   - Add OpenAI GPT-4 for content generation
-
-2. **Enhanced AI**
-   - Fine-tune content generation
-   - Improve prediction accuracy
-   - Add competitor analysis
-
-3. **Scaling**
-   - Migrate SQLite to Postgres
-   - Add authentication system
-   - Support multiple operators
-
-## 📝 License
+## 📄 License
 
 MIT
 
-## 👥 Support
+## 🤝 Contributing
 
-For issues or questions, please create an issue in the repository.
+1. Fork
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Open Pull Request
+
+## 📞 Support
+
+For issues or questions:
+- Check documentation
+- Review API endpoints
+- Test with mock mode (no API keys)
 
 ---
 
-**Built with ❤️ for US-based Facebook page growth**
+**Built with Patrick Savalle's L-GEVITY methodology** 🏗️
+**Enhanced to SMV specification** ✅
+**Focused on 3 high-performing niches** 🎯

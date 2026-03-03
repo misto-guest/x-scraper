@@ -41,7 +41,12 @@ function initDatabase() {
   const schema = fs.readFileSync(path.join(__dirname, 'database/schema.sql'), 'utf8');
   db.exec(schema, (err) => {
     if (err) {
-      console.error('Schema initialization error:', err.message);
+      // Ignore "already exists" errors - database is already initialized
+      if (err.message.includes('already exists')) {
+        console.log('Database schema already initialized');
+      } else {
+        console.error('Schema initialization error:', err.message);
+      }
     } else {
       console.log('Database schema initialized successfully');
     }
@@ -60,13 +65,25 @@ const sourcesRouter = require('./api/sources');
 const postsRouter = require('./api/posts');
 const predictionsRouter = require('./api/predictions');
 const contentGeneratorRouter = require('./api/content-generator');
+const configRouter = require('./api/config');
+
+// Enhanced SMV routes
+const pagesEnhancedRouter = require('./api/pages-enhanced');
+const sourcesEnhancedRouter = require('./api/sources-enhanced');
+const scrapedRouter = require('./api/scraped');
+const predictionsEnhancedRouter = require('./api/predictions-enhanced');
 
 // Use routes
 app.use('/api/pages', pagesRouter);
+app.use('/api/pages', pagesEnhancedRouter);
 app.use('/api/sources', sourcesRouter);
+app.use('/api/sources', sourcesEnhancedRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/predictions', predictionsRouter);
+app.use('/api/predictions', predictionsEnhancedRouter);
+app.use('/api/scraped', scrapedRouter);
 app.use('/api/content', contentGeneratorRouter);
+app.use('/api/config', configRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {

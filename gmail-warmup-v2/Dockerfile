@@ -3,6 +3,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Create necessary directories
+RUN mkdir -p data logs screenshots ui
+
 # Copy package files
 COPY package*.json ./
 
@@ -12,15 +15,15 @@ RUN npm ci --only=production
 # Copy application files
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p data logs screenshots ui
+# Copy version file (forces cache rebuild)
+COPY VERSION /app/VERSION
 
 # Expose port
-EXPOSE 18789
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:18789/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) })"
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) })"
 
 # Start server
 CMD ["npm", "start"]
