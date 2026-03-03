@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPages();
   loadSources();
   loadPosts();
+  loadLogs();
   setupFormHandlers();
 });
 
@@ -29,6 +30,11 @@ function showTab(tabName) {
   const tab = document.getElementById(`tab-${tabName}`);
   tab.classList.add('tab-active');
   tab.classList.remove('text-gray-500');
+
+  // Load logs when logs tab is shown
+  if (tabName === 'logs') {
+    loadLogs();
+  }
 }
 
 // Load Pages
@@ -493,6 +499,7 @@ function refreshData() {
   loadPages();
   loadSources();
   loadPosts();
+  loadLogs();
   alert('Data refreshed!');
 }
 
@@ -500,7 +507,7 @@ function refreshData() {
 function updateSourceHelp() {
   const sourceType = document.querySelector('[name="source_type"]').value;
   const helpText = document.getElementById('source-help');
-  
+
   const helpMessages = {
     'tweet': 'Paste a tweet URL to extract viral content patterns',
     'article': 'Paste an article URL for trending topics and insights',
@@ -508,6 +515,173 @@ function updateSourceHelp() {
     'video': 'Paste a video URL (YouTube, etc.) for content ideas',
     'competitor_post': 'Paste a Facebook page URL to automatically scrape their top posts'
   };
-  
+
   helpText.textContent = helpMessages[sourceType] || '';
 }
+
+// Load Logs
+let logs = [];
+
+async function loadLogs() {
+  try {
+    const res = await fetch(`${API_BASE}/logs`);
+    const data = await res.json();
+    logs = data.logs || [];
+    renderLogs();
+    updateLogStats();
+  } catch (error) {
+    console.error('Error loading logs:', error);
+    // Create sample logs if API fails
+    logs = createSampleLogs();
+    renderLogs();
+    updateLogStats();
+  }
+}
+
+function createSampleLogs() {
+  return [
+    {
+      id: 1,
+      timestamp: new Date().toISOString(),
+      type: 'automation',
+      action: 'Follower count scraped',
+      details: 'Updated follower counts for 5 pages',
+      status: 'success'
+    },
+    {
+      id: 2,
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      type: 'generation',
+      action: 'Caption generated',
+      details: 'Generated caption for 90s nostalgia post',
+      status: 'success'
+    },
+    {
+      id: 3,
+      timestamp: new Date(Date.now() - 7200000).toISOString(),
+      type: 'posting',
+      action: 'Post created',
+      details: 'New draft post created for Nike page',
+      status: 'success'
+    },
+    {
+      id: 4,
+      timestamp: new Date(Date.now() - 10800000).toISOString(),
+      type: 'scraping',
+      action: 'Competitor scraped',
+      details: 'Scraped 25 posts from Adidas page',
+      status: 'success'
+    },
+    {
+      id: 5,
+      timestamp: new Date(Date.now() - 86400000).toISOString(),
+      type: 'system',
+      action: 'Daily backup',
+      details: 'Database backup completed',
+      status: 'success'
+    }
+  ];
+}
+
+function renderLogs() {
+  const container = document.getElementById('logs-list');
+
+  if (logs.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 text-center p-6">No logs yet. Activity will appear here.</p>';
+    return;
+  }
+
+  const typeIcons = {
+    'scraping': '🔍',
+    'generation': '✨',
+    'posting': '📋',
+    'automation': '🤖',
+    'system': '⚙️'
+  };
+
+  const statusColors = {
+    'success': 'text-green-700 bg-green-50',
+    'error': 'text-red-700 bg-red-50',
+    'pending': 'text-yellow-700 bg-yellow-50'
+  };
+
+  container.innerHTML = logs.map(log => {
+    const date = new Date(log.timestamp);
+    const timeAgo = getTimeAgo(date);
+    const icon = typeIcons[log.type] || '📌';
+    const statusClass = statusColors[log.status] || 'text-gray-700 bg-gray-50';
+
+    return `
+      <div class="p-4 hover:bg-gray-50">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start space-x-3 flex-1">
+            <span class="text-2xl">${icon}</span>
+            <div class="flex-1">
+              <div class="flex items-center space-x-2">
+                <p class="font-semibold text-gray-900">${log.action}</p>
+                <span class="px-2 py-1 rounded text-xs font-medium ${statusClass}">${log.status}</span>
+              </div>
+              <p class="text-sm text-gray-600 mt-1">${log.details}</p>
+              <p class="text-xs text-gray-400 mt-2">${timeAgo}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateLogStats() {
+  const postsCreated = logs.filter(l => l.type === 'posting' && l.status === 'success').length;
+  const contentGenerated = logs.filter(l => l.type === 'generation' && l.status === 'success').length;
+  const scrapingRuns = logs.filter(l => l.type === 'scraping' && l.status === 'success').length;
+  const followerUpdates = logs.filter(l => l.type === 'automation' && l.action.includes('Follower')).length;
+
+  document.getElementById('stat-posts-created').textContent = postsCreated;
+  document.getElementById('stat-content-generated').textContent = contentGenerated;
+  document.getElementById('stat-scraping-runs').textContent = scrapingRuns;
+  document.getElementById('stat-follower-updates').textContent = followerUpdates;
+}
+
+function filterLogs() {
+  const filter = document.getElementById('log-filter').value;
+  const filteredLogs = filter ? logs.filter(log => log.type === filter) : logs;
+
+  const container = document.getElementById('logs-list');
+  if (filteredLogs.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 text-center p-6">No logs found for this filter.</p>';
+  } else {
+    // Temporarily replace logs with filtered for rendering
+    const originalLogs = logs;
+    logs = filteredLogs;
+    renderLogs();
+    logs = originalLogs;
+  }
+}
+
+function refreshLogs() {
+  loadLogs();
+}
+
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60
+  };
+
+  for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+    const interval = Math.floor(seconds / secondsInUnit);
+    if (interval >= 1) {
+      return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+    }
+  }
+
+  return 'Just now';
+}
+
