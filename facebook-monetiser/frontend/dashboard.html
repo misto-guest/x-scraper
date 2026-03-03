@@ -35,6 +35,58 @@
   </nav>
 
   <div class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Automations Info Banner -->
+    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg shadow-sm border border-purple-200 p-6 mb-6">
+      <div class="flex items-start space-x-4">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-bold text-gray-900 mb-2">🤖 Active Automations</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-gray-700 mb-1">✨ Content Generation</p>
+              <ul class="text-gray-600 space-y-1 ml-4">
+                <li>• AI-powered caption generation (Runware)</li>
+                <li>• Image prompt creation (DALL-E 3, Midjourney)</li>
+                <li>• Comment & CTA generation</li>
+                <li>• Niche-specific templates</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-700 mb-1">📊 Analytics & Insights</p>
+              <ul class="text-gray-600 space-y-1 ml-4">
+                <li>• Performance predictions (CTR, CVR, CPA)</li>
+                <li>• Engagement velocity tracking</li>
+                <li>• Competitor content analysis</li>
+                <li>• Trend detection & insights</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-700 mb-1">🔍 Research & Scraping</p>
+              <ul class="text-gray-600 space-y-1 ml-4">
+                <li>• Firecrawl integration for competitor research</li>
+                <li>• Automatic insight extraction</li>
+                <li>• Content velocity trend analysis</li>
+                <li>• Multi-source aggregation</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-700 mb-1">📋 Management</p>
+              <ul class="text-gray-600 space-y-1 ml-4">
+                <li>• Multi-page support</li>
+                <li>• Asset tracking (websites, groups, ads)</li>
+                <li>• Draft approval workflow</li>
+                <li>• Manual posting (Phase 2: auto-posting)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Tabs -->
     <div class="bg-white rounded-t-lg shadow-sm border">
       <div class="flex space-x-8 px-6">
@@ -73,8 +125,28 @@
 
       <!-- Sources Tab -->
       <div id="content-sources" class="tab-content hidden">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold">Sources & Insights</h2>
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold mb-2">Sources & Insights</h2>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p class="text-sm text-blue-900">
+              <strong>💡 What are Sources?</strong><br>
+              Sources are content references that fuel your content strategy. They include:
+            </p>
+            <ul class="text-sm text-blue-800 mt-2 space-y-1 ml-4">
+              <li><strong>🐦 Tweets</strong> - Viral Twitter threads for inspiration</li>
+              <li><strong>📰 Articles</strong> - News and blog posts for trending topics</li>
+              <li><strong>📚 Case Studies</strong> - Success stories and examples</li>
+              <li><strong>🎥 Videos</strong> - YouTube and video content insights</li>
+              <li><strong>🏆 Competitor Posts</strong> - Top-performing content from competitor Facebook pages</li>
+            </ul>
+            <p class="text-sm text-blue-900 mt-3">
+              <strong>🚀 Primary Use Case: Competitor Page Scraping</strong><br>
+              Add competitor Facebook pages as sources to automatically scrape their top-engagement posts. The system extracts images, captions, and performance data to generate similar high-performing content for your pages.
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+          <p class="text-sm text-gray-500">Click "+ Add Source" to add tweets, articles, or competitor page URLs for automated scraping and insight extraction.</p>
           <button onclick="showAddSourceModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
             + Add Source
           </button>
@@ -216,36 +288,41 @@
   <div id="add-source-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md w-full">
       <h3 class="text-xl font-bold mb-4">Add Source</h3>
+      <div class="bg-purple-50 border border-purple-200 rounded p-3 mb-4 text-sm text-purple-900">
+        <p class="font-semibold">🚀 Pro Tip: Competitor Page Scraping</p>
+        <p class="mt-1">For scraping competitor Facebook pages, select <strong>"Competitor Post"</strong> and paste the page URL. The system will automatically extract their top posts, images, and engagement data.</p>
+      </div>
       <form id="add-source-form" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Source Type</label>
-          <select name="source_type" required class="w-full border rounded px-3 py-2">
-            <option value="tweet">Tweet</option>
-            <option value="article">Article</option>
-            <option value="case_study">Case Study</option>
-            <option value="video">Video</option>
-            <option value="competitor_post">Competitor Post</option>
+          <select name="source_type" required class="w-full border rounded px-3 py-2" onchange="updateSourceHelp()">
+            <option value="tweet">🐦 Tweet</option>
+            <option value="article">📰 Article</option>
+            <option value="case_study">📚 Case Study</option>
+            <option value="video">🎥 Video</option>
+            <option value="competitor_post" selected>🏆 Competitor Page (Auto-Scrape)</option>
           </select>
+          <p id="source-help" class="text-xs text-gray-500 mt-1">Paste a Facebook page URL to automatically scrape their top posts</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input type="text" name="title" required class="w-full border rounded px-3 py-2">
+          <input type="text" name="title" required placeholder="e.g., Nike's Facebook Page" class="w-full border rounded px-3 py-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">URL</label>
-          <input type="url" name="url" class="w-full border rounded px-3 py-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Facebook Page URL</label>
+          <input type="url" name="url" required placeholder="https://facebook.com/competitor-page" class="w-full border rounded px-3 py-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Author/Platform</label>
-          <input type="text" name="author" class="w-full border rounded px-3 py-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Page Name / Author</label>
+          <input type="text" name="author" placeholder="e.g., Nike" class="w-full border rounded px-3 py-2">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Content Text</label>
-          <textarea name="content_text" rows="3" class="w-full border rounded px-3 py-2"></textarea>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+          <textarea name="content_text" rows="2" placeholder="What makes this page interesting? What to learn?" class="w-full border rounded px-3 py-2"></textarea>
         </div>
         <div class="flex space-x-2">
           <button type="submit" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-            Add Source
+            Add & Start Scraping
           </button>
           <button type="button" onclick="closeModal('add-source-modal')" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
             Cancel

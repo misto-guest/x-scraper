@@ -495,3 +495,19 @@ function refreshData() {
   loadPosts();
   alert('Data refreshed!');
 }
+
+// Update source help text based on type
+function updateSourceHelp() {
+  const sourceType = document.querySelector('[name="source_type"]').value;
+  const helpText = document.getElementById('source-help');
+  
+  const helpMessages = {
+    'tweet': 'Paste a tweet URL to extract viral content patterns',
+    'article': 'Paste an article URL for trending topics and insights',
+    'case_study': 'Add a case study for success story analysis',
+    'video': 'Paste a video URL (YouTube, etc.) for content ideas',
+    'competitor_post': 'Paste a Facebook page URL to automatically scrape their top posts'
+  };
+  
+  helpText.textContent = helpMessages[sourceType] || '';
+}
