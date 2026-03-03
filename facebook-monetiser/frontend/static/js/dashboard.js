@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPosts();
   loadLogs();
   checkConfig();
+  detectDeploymentInfo();
   setupFormHandlers();
 });
 
@@ -695,8 +696,8 @@ async function checkConfig() {
 
     // Update system status badge
     const modeBadge = document.getElementById('system-mode-badge');
-    if (data.runware_configured || data.openai_configured) {
-      modeBadge.textContent = '✅ AI Mode';
+    if (data.runware_configured || data.zai_api_configured) {
+      modeBadge.textContent = '✅ AI Mode (z.ai)';
       modeBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800';
     } else {
       modeBadge.textContent = '🔶 Mock Mode';
@@ -723,12 +724,11 @@ async function checkConfig() {
     // Display current config
     const configDiv = document.getElementById('current-config');
     configDiv.innerHTML = `
-      <p><strong>Runware AI:</strong> ${data.runware_configured ? '✅ Configured' : '❌ Not configured'}</p>
+      <p><strong>z.ai API (Runware):</strong> ${data.runware_configured ? '✅ Configured' : '❌ Not configured'}</p>
       <p><strong>Firecrawl:</strong> ${data.firecrawl_configured ? '✅ Configured' : '❌ Not configured'}</p>
-      <p><strong>OpenAI:</strong> ${data.openai_configured ? '✅ Configured' : '❌ Not configured'}</p>
       <p><strong>Facebook API:</strong> ${data.facebook_configured ? '✅ Configured' : '❌ Not configured'}</p>
       <p><strong>Environment:</strong> ${data.environment || 'development'}</p>
-      <p class="text-xs text-gray-500 mt-2">API keys are stored securely in environment variables</p>
+      <p class="text-xs text-gray-500 mt-2">Note: z.ai (Runware GLM-4) is used for all AI content generation. OpenAI is not supported.</p>
     `;
 
   } catch (error) {
@@ -792,30 +792,27 @@ async function saveFirecrawlKey() {
   }
 }
 
-async function saveOpenAIKey() {
-  const apiKey = document.getElementById('openai-key').value;
-  if (!apiKey) {
-    alert('Please enter an API key');
-    return;
+function detectDeploymentInfo() {
+  // Detect deployment location
+  const hostname = window.location.hostname;
+  let deployment = 'Unknown';
+  let workingDir = '/app';
+
+  if (hostname.includes('fly.dev')) {
+    deployment = 'Fly.io (Production)';
+    workingDir = '/app';
+  } else if (hostname.includes('railway.app')) {
+    deployment = 'Railway (Production)';
+    workingDir = '/app';
+  } else if (hostname === 'localhost') {
+    deployment = 'Local Development';
+    workingDir = window.location.pathname.replace(/\/dashboard$/, '');
+  } else if (hostname.includes('github.io') || hostname.includes('vercel.app')) {
+    deployment = 'Static Hosting';
+    workingDir = 'N/A (no backend)';
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/config/openai`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: apiKey })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      alert('✅ OpenAI API key saved!');
-      checkConfig();
-    } else {
-      alert('❌ Error: ' + (data.error || 'Failed to save API key'));
-    }
-  } catch (error) {
-    alert('❌ Error: ' + error.message);
-  }
+  document.getElementById('deployment-location').textContent = deployment;
+  document.getElementById('working-directory').textContent = workingDir;
 }
 

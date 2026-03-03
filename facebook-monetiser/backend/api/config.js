@@ -12,10 +12,10 @@ router.get('/', (req, res) => {
   const config = {
     runware_configured: !!process.env.RUNWARE_API_KEY,
     firecrawl_configured: !!process.env.FIRECRAWL_API_KEY,
-    openai_configured: !!process.env.OPENAI_API_KEY,
     facebook_configured: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET),
     environment: process.env.NODE_ENV || 'development',
-    has_database: !!req.db
+    has_database: !!req.db,
+    zai_api_configured: !!process.env.ZAI_API_KEY
   };
 
   res.json(config);
@@ -48,7 +48,7 @@ router.post('/runware', (req, res) => {
   res.json({
     success: true,
     message: 'API key format validated',
-    note: 'To persist: Add RUNWARE_API_KEY=' + api_key + ' to your .env file and restart the server'
+    note: 'To persist: Add RUNWARE_API_KEY=' + api_key + ' to your .env file or Fly.io secrets and restart the server'
   });
 });
 
@@ -72,31 +72,7 @@ router.post('/firecrawl', (req, res) => {
   res.json({
     success: true,
     message: 'API key format validated',
-    note: 'To persist: Add FIRECRAWL_API_KEY=' + api_key + ' to your .env file and restart the server'
-  });
-});
-
-/**
- * Save OpenAI API key
- */
-router.post('/openai', (req, res) => {
-  const { api_key } = req.body;
-
-  if (!api_key) {
-    return res.status(400).json({ success: false, error: 'API key is required' });
-  }
-
-  // Basic validation (OpenAI keys start with 'sk-')
-  const isValidFormat = /^sk-[a-zA-Z0-9]{48,}$/.test(api_key);
-
-  if (!isValidFormat) {
-    return res.status(400).json({ success: false, error: 'Invalid API key format. Should start with sk-' });
-  }
-
-  res.json({
-    success: true,
-    message: 'API key format validated',
-    note: 'To persist: Add OPENAI_API_KEY=' + api_key + ' to your .env file and restart the server'
+    note: 'To persist: Add FIRECRAWL_API_KEY=' + api_key + ' to your .env file or Fly.io secrets and restart the server'
   });
 });
 
