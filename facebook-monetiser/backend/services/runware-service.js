@@ -1,7 +1,6 @@
 /**
- * Runware.ai Service
+ * Runware.ai Service (z.ai)
  * AI content generation with model testing and performance tracking
- * Supports multiple models with quality comparison
  */
 
 class RunwareService {
@@ -9,25 +8,20 @@ class RunwareService {
     this.baseUrl = 'https://api.runware.ai/v1';
     this.apiKey = process.env.RUNWARE_API_KEY || null;
 
-    // Model configurations for testing
+    // Model configurations
     this.models = {
       text: {
-        gpt4: 'openai/gpt-4-turbo',
-        claude3: 'anthropic/claude-3-sonnet',
-        llama3: 'meta/llama-3-70b'
+        glm4: 'z.ai/glm-4'
       },
       image: {
         dall_e: 'openai/dall-e-3',
-        midjourney: 'midjourney/mj-v6',
-        stable_diffusion: 'stability/sdxl-turbo'
+        sdxl: 'stability/sdxl-turbo'
       }
     };
 
-    // Default models
-    this.defaultTextModel = this.models.text.gpt4;
+    this.defaultTextModel = this.models.text.glm4;
     this.defaultImageModel = this.models.image.dall_e;
 
-    // Performance tracking
     this.modelPerformance = {
       text: {},
       image: {}
@@ -35,10 +29,11 @@ class RunwareService {
   }
 
   /**
-   * Generate text content with specified model
+   * Generate text content with z.ai GLM-4
    */
   async generateText(prompt, model = null, options = {}) {
     if (!this.apiKey) {
+      console.warn('RUNWARE_API_KEY not configured, using mock responses');
       return this._mockGenerateText(prompt, options);
     }
 
@@ -55,18 +50,17 @@ class RunwareService {
           model: selectedModel,
           prompt,
           max_tokens: options.maxTokens || 500,
-          temperature: options.temperature || 0.7,
-          ...options
+          temperature: options.temperature || 0.7
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Runware API error: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Runware API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
 
-      // Track performance
       this._trackModelPerformance('text', selectedModel, data);
 
       return {
@@ -76,13 +70,13 @@ class RunwareService {
         cost: data.cost || null
       };
     } catch (error) {
-      console.error('Runware text generation error:', error);
+      console.error('Runware text generation error:', error.message);
       return this._mockGenerateText(prompt, options);
     }
   }
 
   /**
-   * Generate image with specified model
+   * Generate image with z.ai
    */
   async generateImage(prompt, model = null, options = {}) {
     if (!this.apiKey) {
@@ -103,8 +97,7 @@ class RunwareService {
           prompt,
           width: options.width || 1024,
           height: options.height || 1024,
-          num_images: options.numImages || 1,
-          ...options
+          num_images: options.numImages || 1
         })
       });
 
@@ -114,7 +107,6 @@ class RunwareService {
 
       const data = await response.json();
 
-      // Track performance
       this._trackModelPerformance('image', selectedModel, data);
 
       return {
@@ -124,48 +116,13 @@ class RunwareService {
         cost: data.cost || null
       };
     } catch (error) {
-      console.error('Runware image generation error:', error);
+      console.error('Runware image generation error:', error.message);
       return this._mockGenerateImage(prompt, options);
     }
   }
 
   /**
-   * Test multiple models and return best result
-   */
-  async testModels(type, prompt, options = {}) {
-    const models = type === 'text' ? this.models.text : this.models.image;
-    const results = [];
-
-    for (const [name, modelId] of Object.entries(models)) {
-      try {
-        let result;
-        if (type === 'text') {
-          result = await this.generateText(prompt, modelId, options);
-        } else {
-          result = await this.generateImage(prompt, modelId, options);
-        }
-
-        results.push({
-          name,
-          model: modelId,
-          result,
-          success: true
-        });
-      } catch (error) {
-        results.push({
-          name,
-          model: modelId,
-          error: error.message,
-          success: false
-        });
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * Get best performing model for type
+   * Get best performing model
    */
   getBestModel(type) {
     const performance = this.modelPerformance[type];
@@ -174,7 +131,6 @@ class RunwareService {
       return type === 'text' ? this.defaultTextModel : this.defaultImageModel;
     }
 
-    // Find model with lowest average cost or highest success rate
     let bestModel = null;
     let bestScore = -1;
 
@@ -212,7 +168,7 @@ class RunwareService {
   }
 
   /**
-   * Mock text generation (for development without API key)
+   * Mock text generation (fallback)
    */
   _mockGenerateText(prompt, options) {
     const mockResponses = {
@@ -230,7 +186,6 @@ class RunwareService {
       ]
     };
 
-    // Detect niche from prompt
     let niche = 'emotional';
     if (prompt.toLowerCase().includes('90s') || prompt.toLowerCase().includes('nostalgia')) {
       niche = '90s nostalgia';
@@ -245,7 +200,7 @@ class RunwareService {
       content,
       model: 'mock',
       tokens_used: Math.floor(Math.random() * 100) + 50,
-      cost: 0.002
+      cost: 0
     };
   }
 
@@ -257,7 +212,7 @@ class RunwareService {
       image_url: `https://picsum.photos/1024/1024?random=${Date.now()}`,
       model: 'mock',
       generation_time: 2.5,
-      cost: 0.05
+      cost: 0
     };
   }
 

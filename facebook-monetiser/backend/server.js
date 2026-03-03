@@ -66,6 +66,7 @@ const postsRouter = require('./api/posts');
 const predictionsRouter = require('./api/predictions');
 const contentGeneratorRouter = require('./api/content-generator');
 const configRouter = require('./api/config');
+const publishingRouter = require('./api/publishing');
 
 // Enhanced SMV routes
 const pagesEnhancedRouter = require('./api/pages-enhanced');
@@ -84,6 +85,7 @@ app.use('/api/predictions', predictionsEnhancedRouter);
 app.use('/api/scraped', scrapedRouter);
 app.use('/api/content', contentGeneratorRouter);
 app.use('/api/config', configRouter);
+app.use('/api/publishing', publishingRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {
