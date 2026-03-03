@@ -44,49 +44,49 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h3 class="text-lg font-bold text-gray-900 mb-2">🤖 Active Automations</h3>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">🤖 System Features</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <p class="font-semibold text-gray-700 mb-1">✨ Content Generation</p>
               <ul class="text-gray-600 space-y-1 ml-4">
-                <li>• AI captions: <strong>Runware API</strong> (GLM-4 model)</li>
-                <li>• Image prompts: DALL-E 3, Midjourney, SDXL</li>
-                <li>• Comment & CTA generation</li>
-                <li>• Niche-specific templates</li>
+                <li>• Template-based caption generation</li>
+                <li>• Image prompt suggestions (manual)</li>
+                <li>• Comment & CTA templates</li>
+                <li>• Niche-specific content (90s, political, emotional)</li>
               </ul>
             </div>
             <div>
-              <p class="font-semibold text-gray-700 mb-1">📊 Analytics & Insights</p>
+              <p class="font-semibold text-gray-700 mb-1">📊 Current Capabilities</p>
               <ul class="text-gray-600 space-y-1 ml-4">
                 <li>• Performance predictions (CTR, CVR, CPA)</li>
-                <li>• Follower count tracking (daily auto-scrape)</li>
-                <li>• Post count monitoring</li>
-                <li>• Engagement velocity tracking</li>
+                <li>• Manual follower tracking</li>
+                <li>• Post count manual entry</li>
+                <li>• Risk scoring for content</li>
               </ul>
             </div>
             <div>
-              <p class="font-semibold text-gray-700 mb-1">🔍 Research & Scraping</p>
+              <p class="font-semibold text-gray-700 mb-1">🔍 Research Tools</p>
               <ul class="text-gray-600 space-y-1 ml-4">
-                <li>• Firecrawl integration for competitor research</li>
-                <li>• Automatic insight extraction</li>
-                <li>• Content velocity trend analysis</li>
-                <li>• Multi-source aggregation</li>
+                <li>• Source management (Tweets, articles, etc.)</li>
+                <li>• Manual insight entry</li>
+                <li>• Competitor tracking (manual)</li>
+                <li>• Content organization</li>
               </ul>
             </div>
             <div>
               <p class="font-semibold text-gray-700 mb-1">📋 Publishing</p>
               <ul class="text-gray-600 space-y-1 ml-4">
-                <li>• <strong>Manual posting</strong> (copy & paste workflow)</li>
-                <li>• Draft approval required</li>
-                <li>• Multi-page support</li>
-                <li>• Activity logs for tracking</li>
+                <li>• <strong>Manual posting only</strong></li>
+                <li>• Draft creation & review</li>
+                <li>• Copy/paste to Facebook</li>
+                <li>• Activity tracking</li>
               </ul>
             </div>
           </div>
           <div class="mt-4 pt-4 border-t border-purple-200">
             <p class="text-xs text-gray-600">
-              <strong>📌 Note:</strong> Posts are <strong>NOT auto-published</strong>. All posts require manual review and copy/paste to Facebook. 
-              View <a href="#logs" onclick="showTab('logs')" class="text-purple-600 underline">Logs</a> for full activity history.
+              <strong>⚠️ Important:</strong> This is a <strong>manual workflow tool</strong>. No automatic posting, no auto-scraping, no cron jobs.
+              All actions require human input. View <a href="#logs" onclick="showTab('logs')" class="text-purple-600 underline">Logs</a> for activity history.
             </p>
           </div>
         </div>
@@ -309,13 +309,17 @@
 
         <!-- Automation Schedule Info -->
         <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h4 class="font-semibold text-yellow-900 mb-2">⏰ Scheduled Automations</h4>
+          <h4 class="font-semibold text-yellow-900 mb-2">⚠️ System Status</h4>
           <ul class="text-sm text-yellow-800 space-y-1">
-            <li>• <strong>Follower count scraping:</strong> Once daily (automatic)</li>
-            <li>• <strong>Post count monitoring:</strong> Continuous tracking</li>
-            <li>• <strong>Competitor scraping:</strong> On-demand (add new sources)</li>
-            <li>• <strong>Content generation:</strong> Manual (via Create Post tab)</li>
+            <li>• <strong>NO scheduled automations</strong> - All manual workflow</li>
+            <li>• <strong>Follower counts:</strong> Manual entry only</li>
+            <li>• <strong>Post monitoring:</strong> Manual tracking</li>
+            <li>• <strong>Competitor research:</strong> Manual source addition</li>
+            <li>• <strong>Content generation:</strong> Template-based (not AI API)</li>
           </ul>
+          <p class="text-xs text-yellow-700 mt-2">
+            To add automation: Set up cron jobs, integrate scraping APIs, or configure Runware/OpenAI keys.
+          </p>
         </div>
       </div>
     </div>
