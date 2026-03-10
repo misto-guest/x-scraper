@@ -42,6 +42,7 @@ function showTab(tabName) {
   if (tabName === 'settings') {
     loadScraperStatus();
     loadAutomationStatus();
+    loadActiveSources();
   }
 }
 
@@ -56,6 +57,70 @@ async function loadPages() {
   } catch (error) {
     console.error('Error loading pages:', error);
     document.getElementById('pages-list').innerHTML = '<p class="text-red-500">Error loading pages</p>';
+  }
+}
+
+// Load Active Sources (for Settings header)
+async function loadActiveSources() {
+  const container = document.getElementById('active-sources-list');
+  if (!container) return;
+  
+  try {
+    // Fetch pages
+    const pagesRes = await fetch(`${API_BASE}/pages`);
+    const pagesData = await pagesRes.json();
+    const pagesList = pagesData.pages || [];
+    
+    // Fetch sources
+    const sourcesRes = await fetch(`${API_BASE}/sources`);
+    const sourcesData = await sourcesRes.json();
+    const sourcesList = sourcesData.sources || [];
+    
+    const allItems = [];
+    
+    // Add pages
+    pagesList.forEach(p => {
+      allItems.push({
+        type: '📄 Page',
+        name: p.name,
+        url: `https://facebook.com/${p.page_id}`,
+        id: p.page_id,
+        posts: p.posts_count || 0
+      });
+    });
+    
+    // Add sources
+    sourcesList.forEach(s => {
+      allItems.push({
+        type: s.source_type === 'facebook_group_post' ? '👥 Group' : '📌 Source',
+        name: s.title,
+        url: s.url,
+        id: s.id,
+        posts: '-'
+      });
+    });
+    
+    if (allItems.length === 0) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">No sources added yet. Add pages or scraping sources below.</p>';
+      return;
+    }
+    
+    container.innerHTML = allItems.map(item => `
+      <div class="flex items-center justify-between bg-white rounded p-3 border border-purple-200">
+        <div class="flex items-center space-x-3">
+          <span class="text-lg">${item.type}</span>
+          <div>
+            <p class="font-semibold text-gray-900">${item.name}</p>
+            <a href="${item.url}" target="_blank" class="text-xs text-purple-600 hover:underline">${item.url.substring(0, 50)}...</a>
+          </div>
+        </div>
+        <span class="text-sm text-gray-500">${item.posts === '-' ? item.posts : item.posts + ' posts'}</span>
+      </div>
+    `).join('');
+    
+  } catch (error) {
+    console.error('Error loading active sources:', error);
+    container.innerHTML = '<p class="text-red-500 text-sm">Error loading sources</p>';
   }
 }
 
