@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Get all sources with filtering
 router.get('/', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { type, search, limit = 50 } = req.query;
 
   let sql = 'SELECT * FROM sources';
@@ -38,7 +38,7 @@ router.get('/', (req, res) => {
 
 // Get single source with insights
 router.get('/:id', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   db.get('SELECT * FROM sources WHERE id = ?', [id], (err, source) => {
@@ -66,7 +66,7 @@ router.get('/:id', (req, res) => {
 
 // Create new source
 router.post('/', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { source_type, title, url, author, platform, published_date, content_text, raw_data } = req.body;
 
   const validTypes = ['tweet', 'article', 'case_study', 'video', 'competitor_post', 'facebook_group_post'];
@@ -103,7 +103,7 @@ router.post('/', (req, res) => {
 
 // Add Facebook group post from URL
 router.post('/facebook-group', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { url } = req.body;
 
   if (!url) {
@@ -169,7 +169,7 @@ router.post('/facebook-group', (req, res) => {
 
 // Add insight to source
 router.post('/:id/insights', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { insight_text, category, effectiveness_score, tags } = req.body;
 
@@ -198,7 +198,7 @@ router.post('/:id/insights', (req, res) => {
 
 // Update insight
 router.put('/insights/:insightId', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { insightId } = req.params;
   const { insight_text, category, effectiveness_score, tags } = req.body;
 
@@ -231,7 +231,7 @@ router.put('/insights/:insightId', (req, res) => {
 
 // Delete source
 router.delete('/:id', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   db.run('DELETE FROM sources WHERE id = ?', [id], function(err) {
@@ -248,7 +248,7 @@ router.delete('/:id', (req, res) => {
 
 // Get top insights across all sources
 router.get('/insights/top', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { limit = 20, min_score = 0.6 } = req.query;
 
   const sql = `

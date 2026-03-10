@@ -10,7 +10,7 @@ const router = express.Router();
 
 // Mark source as verified
 router.post('/verify', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.body;
 
   if (!id) {
@@ -44,7 +44,7 @@ router.post('/verify', (req, res) => {
 
 // Get all insights for a specific source
 router.get('/insights/:id', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { min_effectiveness = 0, automation_safe_only = false } = req.query;
 
@@ -101,7 +101,7 @@ router.get('/insights/:id', (req, res) => {
 
 // Update insight effectiveness score
 router.post('/insights/:id/effectiveness', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { effectiveness_score, automation_safe } = req.body;
 
@@ -141,7 +141,7 @@ router.post('/insights/:id/effectiveness', (req, res) => {
 
 // Get sources with verification status
 router.get('/verification/status', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { status } = req.query;
 
   let sql = `
@@ -183,7 +183,7 @@ router.get('/verification/status', (req, res) => {
 
 // Update source details (including new SMV fields)
 router.put('/:id/details', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { summary, confidence_level, last_verified } = req.body;
 
@@ -222,7 +222,7 @@ router.put('/:id/details', (req, res) => {
 
 // Get insights by niche
 router.get('/insights/niche/:niche', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { niche } = req.params;
   const { min_effectiveness = 0.5, limit = 20 } = req.query;
 
@@ -268,7 +268,7 @@ router.get('/insights/niche/:niche', (req, res) => {
 
 // Get top-performing insights across all sources
 router.get('/insights/top', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { limit = 20, min_score = 0.6, category } = req.query;
 
   let sql = `

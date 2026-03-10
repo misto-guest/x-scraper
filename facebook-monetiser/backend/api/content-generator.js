@@ -8,7 +8,7 @@ router.post('/caption', async (req, res) => {
   const { source_id, insight_id, content_type, tone, target_audience } = req.body;
 
   try {
-    const db = req.app.locals.db;
+    const db = req.app.locals.rawDb;
 
     // Get source or insight context
     let context = {};
@@ -93,7 +93,7 @@ router.post('/complete', async (req, res) => {
   const { source_id, insight_id, content_type, options } = req.body;
 
   try {
-    const db = req.app.locals.db;
+    const db = req.app.locals.rawDb;
 
     // Get context
     let context = {};
@@ -162,7 +162,7 @@ router.post('/check-originality', async (req, res) => {
 
 // Get content suggestions from insights
 router.get('/suggestions', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { page_id, limit = 10 } = req.query;
 
   const sql = `

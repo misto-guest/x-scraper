@@ -10,7 +10,7 @@ const predictionService = require('../services/prediction-service');
 
 // Get CTR prediction for a specific post
 router.get('/ctr/:postId', async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { postId } = req.params;
 
   try {
@@ -90,7 +90,7 @@ router.get('/ctr/:postId', async (req, res) => {
 
 // Get full performance prediction for a specific post
 router.get('/performance/:postId', async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { postId } = req.params;
   const { include_historical = false } = req.query;
 
@@ -180,7 +180,7 @@ router.get('/performance/:postId', async (req, res) => {
 
 // Get batch predictions for multiple posts
 router.post('/batch', async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { post_ids } = req.body;
 
   if (!post_ids || !Array.isArray(post_ids)) {
@@ -235,7 +235,7 @@ router.post('/batch', async (req, res) => {
 
 // Get prediction accuracy metrics
 router.get('/accuracy/metrics', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
 
   const sql = `
     SELECT
@@ -279,7 +279,7 @@ router.get('/accuracy/metrics', (req, res) => {
 
 // Get prediction vs actual comparisons
 router.get('/comparisons', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { limit = 20 } = req.query;
 
   const sql = `

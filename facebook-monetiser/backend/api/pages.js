@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Get all pages
 router.get('/', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const sql = `
     SELECT p.*, 
            COUNT(DISTINCT pa.id) as assets_count,
@@ -26,7 +26,7 @@ router.get('/', (req, res) => {
 
 // Get single page with details
 router.get('/:id', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   db.get('SELECT * FROM pages WHERE id = ?', [id], (err, page) => {
@@ -62,7 +62,7 @@ router.get('/:id', (req, res) => {
 
 // Create new page
 router.post('/', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { name, page_id, category, about, followers_count, country } = req.body;
 
   // Enforce US-only
@@ -93,7 +93,7 @@ router.post('/', (req, res) => {
 
 // Update page
 router.put('/:id', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { name, category, about, followers_count, country, is_active } = req.body;
 
@@ -129,7 +129,7 @@ router.put('/:id', (req, res) => {
 
 // Delete page (soft delete)
 router.delete('/:id', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   db.run('UPDATE pages SET is_active = 0 WHERE id = ?', [id], function(err) {
@@ -145,7 +145,7 @@ router.delete('/:id', (req, res) => {
 
 // Add asset to page
 router.post('/:id/assets', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { asset_type, asset_url, asset_id, name } = req.body;
 
@@ -173,7 +173,7 @@ router.post('/:id/assets', (req, res) => {
 
 // Delete asset
 router.delete('/:pageId/assets/:assetId', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { pageId, assetId } = req.params;
 
   db.run('DELETE FROM page_assets WHERE id = ? AND page_id = ?', [assetId, pageId], function(err) {

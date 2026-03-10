@@ -11,7 +11,7 @@ const path = require('path');
  * Full database reset - WARNING: Deletes entire database
  */
 router.post('/reset-sources', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   
   // Close the database connection
   db.close((err) => {

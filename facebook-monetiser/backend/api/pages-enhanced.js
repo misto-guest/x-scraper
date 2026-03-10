@@ -10,7 +10,7 @@ const router = express.Router();
 
 // Get all assets for a specific page
 router.get('/:id/assets', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   const sql = `
@@ -49,7 +49,7 @@ router.get('/:id/assets', (req, res) => {
 
 // Update monetization status for a page
 router.post('/:id/monetization', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { monetization_status, notes } = req.body;
 
@@ -90,7 +90,7 @@ router.post('/:id/monetization', (req, res) => {
 
 // Get pages by niche
 router.get('/by-niche/:niche', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { niche } = req.params;
   const { limit = 50, include_restricted = false } = req.query;
 
@@ -136,7 +136,7 @@ router.get('/by-niche/:niche', (req, res) => {
 
 // Get pages with monetization status
 router.get('/monetization/status', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { status } = req.query;
 
   let sql = `
@@ -173,7 +173,7 @@ router.get('/monetization/status', (req, res) => {
 
 // Update page details (including new SMV fields)
 router.put('/:id/details', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const {
     owner_name,
@@ -219,7 +219,7 @@ router.put('/:id/details', (req, res) => {
 
 // Get page analytics summary
 router.get('/:id/analytics', (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   const sql = `

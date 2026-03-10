@@ -5,7 +5,7 @@ const { validate } = require('../middleware/validation');
 
 // Get all posts with filtering
 router.get('/', validate('postQuery', 'query'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { page_id, status, content_type, limit } = req.query;
 
   try {
@@ -51,7 +51,7 @@ router.get('/', validate('postQuery', 'query'), async (req, res) => {
 
 // Get single post with performance
 router.get('/:id', validate('idParam', 'params'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   try {
@@ -74,7 +74,7 @@ router.get('/:id', validate('idParam', 'params'), async (req, res) => {
 
 // Create new post
 router.post('/', validate('createPost', 'body'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const {
     page_id,
     content_type,
@@ -134,7 +134,7 @@ router.post('/', validate('createPost', 'body'), async (req, res) => {
 
 // Update post
 router.put('/:id', validate('idParam', 'params'), validate('updatePost', 'body'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { caption, first_comment, image_prompt, scheduled_for } = req.body;
 
@@ -178,7 +178,7 @@ router.put('/:id', validate('idParam', 'params'), validate('updatePost', 'body')
 
 // Approve/reject post
 router.put('/:id/approval', validate('idParam', 'params'), validate('approvalStatus', 'body'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { status } = req.body;
 
@@ -199,7 +199,7 @@ router.put('/:id/approval', validate('idParam', 'params'), validate('approvalSta
 
 // Mark post as posted
 router.post('/:id/post', validate('idParam', 'params'), validate('markPosted', 'body'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const { platform_post_id } = req.body;
 
@@ -234,7 +234,7 @@ router.post('/:id/post', validate('idParam', 'params'), validate('markPosted', '
 
 // Add/update performance data
 router.put('/:id/performance', validate('idParam', 'params'), validate('performanceUpdate', 'body'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
   const {
     platform_post_id,
@@ -284,7 +284,7 @@ router.put('/:id/performance', validate('idParam', 'params'), validate('performa
 
 // Delete post
 router.delete('/:id', validate('idParam', 'params'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { id } = req.params;
 
   try {
@@ -303,7 +303,7 @@ router.delete('/:id', validate('idParam', 'params'), async (req, res) => {
 
 // Get posts requiring approval
 router.get('/queue/approval', validate('approvalQueueQuery', 'query'), async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
   const { min_risk } = req.query;
 
   try {
@@ -326,7 +326,7 @@ router.get('/queue/approval', validate('approvalQueueQuery', 'query'), async (re
 
 // Get scheduled posts
 router.get('/queue/scheduled', async (req, res) => {
-  const db = req.app.locals.db;
+  const db = req.app.locals.rawDb;
 
   try {
     const sql = `
