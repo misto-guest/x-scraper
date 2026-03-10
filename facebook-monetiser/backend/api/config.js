@@ -33,8 +33,9 @@ router.post('/runware', (req, res) => {
     return res.status(400).json({ success: false, error: 'API key is required' });
   }
 
-  // Basic validation (Runware keys are typically UUIDs)
-  const isValidFormat = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(api_key);
+  // Basic validation - Runware keys are typically alphanumeric strings
+  // Accepts UUID format, or standard API key format (letters + numbers, 32+ chars)
+  const isValidFormat = /^[a-zA-Z0-9]{32,}$/.test(api_key);
 
   if (!isValidFormat) {
     return res.status(400).json({ success: false, error: 'Invalid API key format' });
