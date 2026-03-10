@@ -125,10 +125,10 @@ router.post('/add-and-scrape', async (req, res) => {
 
   // Add as source first
   const sourceData = {
-    source_type: type === 'page' ? 'competitor_post' : 'facebook_group_post',
+    source_type: type === "facebook_page" ? 'competitor_post' : 'facebook_group_post',
     title: name || `Scraped ${type}`,
     url: url,
-    author: type === 'page' ? 'Page' : 'Group',
+    author: type === "facebook_page" ? 'Page' : 'Group',
     platform: 'facebook'
   };
 
