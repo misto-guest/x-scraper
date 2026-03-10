@@ -101,6 +101,7 @@ async function initializeDatabase() {
 
 // Make db accessible to routes via app.locals
 app.locals.db = database;
+app.locals.rawDb = database.getDb(); // Legacy sqlite3 connection for backward compatibility
 
 // ============================================
 // ROUTES
