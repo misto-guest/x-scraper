@@ -119,14 +119,16 @@ class FacebookScraper {
     const cutoffStr = cutoffDate.toISOString().split('T')[0]; // YYYY-MM-DD
     
     try {
-      // Add timeout wrapper
-      const timeoutMs = 30000;
+      // Add timeout wrapper - shorter timeout to trigger fallback faster
+      const timeoutMs = 15000;
+      console.log(`Starting browser (timeout: ${timeoutMs}ms)...`);
       const result = await Promise.race([
         this.startBrowser(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Browser start timeout')), timeoutMs))
       ]);
       browser = result.browser;
       browserId = result.browserId;
+      console.log('Browser started successfully');
       
       const page = await browser.newPage();
       
