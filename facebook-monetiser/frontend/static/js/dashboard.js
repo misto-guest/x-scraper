@@ -37,6 +37,12 @@ function showTab(tabName) {
   if (tabName === 'logs') {
     loadLogs();
   }
+  
+  // Load scraper & automation status when settings tab is shown
+  if (tabName === 'settings') {
+    loadScraperStatus();
+    loadAutomationStatus();
+  }
 }
 
 // Load Pages
@@ -847,3 +853,87 @@ function detectDeploymentInfo() {
   document.getElementById('working-directory').textContent = workingDir;
 }
 
+
+// Scraper Functions
+async function addScraper() {
+  const type = document.getElementById('scraper-type').value;
+  const url = document.getElementById('scraper-url').value;
+  const name = document.getElementById('scraper-name').value;
+
+  if (!url) {
+    alert('Please enter a URL');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/scraper/add-and-scrape`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, url, name })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      alert(`✅ Source added: ${data.message}`);
+      loadSources();
+      loadScraperStatus();
+    } else {
+      alert('Error: ' + data.error);
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+async function testScraper() {
+  const type = document.getElementById('scraper-type').value;
+  const url = document.getElementById('scraper-url').value;
+
+  if (!url) {
+    alert('Please enter a URL');
+    return;
+  }
+
+  try {
+    const endpoint = type === 'facebook_page' ? 'facebook-page' : 'facebook-group';
+    const res = await fetch(`${API_BASE}/scraper/${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [type === 'facebook_page' ? 'page_url' : 'group_url']: url })
+    });
+    const data = await res.json();
+    alert(JSON.stringify(data, null, 2));
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+async function loadScraperStatus() {
+  try {
+    const res = await fetch(`${API_BASE}/scraper/status`);
+    const data = await res.json();
+    
+    if (data.scrapers) {
+      const statusHtml = data.scrapers.map(s => `
+        <p>
+          <span class="text-gray-500">${s.name}:</span> 
+          <span class="${s.status === 'ready' ? 'text-green-600' : 'text-yellow-600'}">${s.status}</span>
+          ${s.last_run ? ` | Last: ${new Date(s.last_run).toLocaleString()}` : ''}
+        </p>
+      `).join('');
+      document.getElementById('scraper-status').innerHTML = statusHtml;
+    }
+  } catch (error) {
+    console.error('Error loading scraper status:', error);
+  }
+}
+
+async function loadAutomationStatus() {
+  // For now, show a placeholder - in production this would connect to cron
+  const statusHtml = `
+    <p class="text-gray-500">No cron jobs configured yet.</p>
+    <p class="text-sm text-gray-400 mt-2">Add cron jobs in Settings to enable automations.</p>
+  `;
+  const el = document.getElementById('automation-status');
+  if (el) el.innerHTML = statusHtml;
+}

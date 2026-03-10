@@ -29,6 +29,7 @@ const configRouter = require('./api/config');
 const publishingRouter = require('./api/publishing');
 const migrationsRouter = require('./api/migrations');
 const schemaRouter = require('./api/schema');
+const scraperRouter = require('./api/scraper');
 
 // Enhanced SMV routes
 const pagesEnhancedRouter = require('./api/pages-enhanced');
@@ -149,6 +150,7 @@ app.use('/api/content', contentGeneratorRouter);
 app.use('/api/config', configRouter);
 app.use('/api/migrations', migrationsRouter);
 app.use('/api/schema', schemaRouter);
+app.use('/api/scraper', scraperRouter);
 app.use('/api/publishing', publishingRouter);
 
 // ============================================

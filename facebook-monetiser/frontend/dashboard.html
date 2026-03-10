@@ -422,12 +422,9 @@
           <div class="p-6 space-y-4">
 
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-              <h4 class="font-semibold text-gray-900 mb-2">📍 Where Cron Jobs Run</h4>
-              <div class="text-sm text-gray-700 space-y-2">
-                <p><strong>Deployment:</strong> <code id="deployment-location">Detecting...</code></p>
-                <p><strong>Crontab location:</strong> <code>crontab -e</code> (user's crontab)</p>
-                <p><strong>Working directory:</strong> <code id="working-directory">Detecting...</code></p>
-                <p><strong>Log location:</strong> <code>logs/automation.log</code></p>
+              <h4 class="font-semibold text-gray-900 mb-2">📍 Current Automation Status</h4>
+              <div id="automation-status" class="text-sm text-gray-700 space-y-2">
+                <p>Loading automation status...</p>
               </div>
             </div>
 
@@ -623,6 +620,57 @@
                 <p class="text-xs text-blue-700 mt-2">
                   Token permissions needed: pages_read_engagement, pages_manage_posts, pages_manage_engagement
                 </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Scraping Sources Configuration -->
+        <div class="bg-white rounded-lg shadow border mb-6">
+          <div class="px-6 py-4 border-b bg-gray-50">
+            <h3 class="font-semibold text-gray-900">🕷️ Scraping Sources</h3>
+            <p class="text-sm text-gray-500">Add Facebook pages & groups to scrape for content inspiration</p>
+          </div>
+          <div class="p-6 space-y-4">
+            
+            <!-- Add New Scraper -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 class="font-semibold text-blue-900 mb-3">➕ Add Source to Scrape</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <select id="scraper-type" class="border rounded px-3 py-2">
+                  <option value="facebook_page">Facebook Page</option>
+                  <option value="facebook_group">Facebook Group</option>
+                </select>
+                <input type="text" id="scraper-url" class="border rounded px-3 py-2" placeholder="https://facebook.com/...">
+              </div>
+              <input type="text" id="scraper-name" class="w-full border rounded px-3 py-2 mt-3" placeholder="Name (optional)">
+              <div class="flex gap-2 mt-3">
+                <button onclick="addScraper()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
+                  Add & Start Scraping
+                </button>
+                <button onclick="testScraper()" class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">
+                  Test Connection
+                </button>
+              </div>
+            </div>
+
+            <!-- Active Scrapers List -->
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-3">📋 Active Scrapers</h4>
+              <div id="scrapers-list" class="space-y-2">
+                <p class="text-gray-500 text-sm">No scrapers configured yet.</p>
+              </div>
+            </div>
+
+            <!-- Scraper Status -->
+            <div class="bg-gray-50 border rounded-lg p-4">
+              <h4 class="font-semibold text-gray-900 mb-2">🔄 Scraper Status</h4>
+              <div id="scraper-status" class="text-sm space-y-1">
+                <p><span class="text-gray-500">Facebook Page Scraper:</span> <span class="text-yellow-600">Not configured</span></p>
+                <p><span class="text-gray-500">Facebook Group Scraper:</span> <span class="text-yellow-600">Not configured</span></p>
+                <p><span class="text-gray-500">Last scrape:</span> <span class="text-gray-400">Never</span></p>
+                <p><span class="text-gray-500">Next scheduled:</span> <span class="text-gray-400">Not set</span></p>
               </div>
             </div>
 
