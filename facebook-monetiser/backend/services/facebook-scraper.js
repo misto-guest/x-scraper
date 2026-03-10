@@ -109,33 +109,11 @@ class FacebookScraper {
    * @param {number} days - Only get posts from last N days
    */
   async scrapePagePosts(pageUrl, limit = 10, days = 5) {
-    let browser;
-    let browserId;
-    const posts = [];
-    
-    // Calculate cutoff date
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-    const cutoffStr = cutoffDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    
-    try {
-      // Add timeout wrapper - shorter timeout to trigger fallback faster
-      const timeoutMs = 15000;
-      console.log(`Starting browser (timeout: ${timeoutMs}ms)...`);
-      const result = await Promise.race([
-        this.startBrowser(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Browser start timeout')), timeoutMs))
-      ]);
-      browser = result.browser;
-      browserId = result.browserId;
-      console.log('Browser started successfully');
-      
-      const page = await browser.newPage();
-      
-      // Set a realistic user agent
-      await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-      
-      console.log(`Navigating to ${pageUrl}`);
+    // Skip browser and use fallback directly since remote browser API 
+    // is not reachable from this environment
+    console.log('Using fallback HTTP scraping method...');
+    return this.scrapeWithFallback(pageUrl, limit, days);
+  }
       await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 60000 });
       
       // Wait for posts to load
