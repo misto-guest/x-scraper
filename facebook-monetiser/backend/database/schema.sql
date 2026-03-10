@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS pages (
     followers_count INTEGER DEFAULT 0,
     country TEXT DEFAULT 'US' NOT NULL CHECK(country = 'US'),
     is_active BOOLEAN DEFAULT 1,
+    is_own BOOLEAN DEFAULT 0,
+    auto_scrape BOOLEAN DEFAULT 0,
+    last_scraped_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
