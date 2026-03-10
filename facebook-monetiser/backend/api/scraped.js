@@ -10,7 +10,7 @@ const velocityScoringService = require('../services/velocity-scoring');
 
 // Get scraped content by competitor
 router.get('/competitor/:id', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { id } = req.params;
   const { limit = 50, min_velocity = 0 } = req.query;
 
@@ -60,7 +60,7 @@ router.get('/competitor/:id', (req, res) => {
 
 // Calculate velocity scores for scraped content
 router.post('/velocity', async (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { content_ids, recalculate_all = false } = req.body;
 
   try {
@@ -164,7 +164,7 @@ router.post('/velocity', async (req, res) => {
 
 // Get high-velocity content
 router.get('/velocity/high', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { threshold = 0.7, limit = 20, source_type } = req.query;
 
   let sql = `
@@ -206,7 +206,7 @@ router.get('/velocity/high', (req, res) => {
 
 // Get velocity trends by competitor
 router.get('/velocity/trends/:competitorId', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { competitorId } = req.params;
   const { days = 30 } = req.query;
 
@@ -259,7 +259,7 @@ router.get('/velocity/trends/:competitorId', (req, res) => {
 
 // Compare velocity between competitors
 router.get('/velocity/compare', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { competitor_ids } = req.query;
 
   if (!competitor_ids) {

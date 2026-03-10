@@ -4,7 +4,7 @@ const predictionService = require('../services/prediction-service');
 
 // Get predictions for a post
 router.get('/post/:postId', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { postId } = req.params;
 
   db.get(
@@ -29,7 +29,7 @@ router.get('/post/:postId', (req, res) => {
 
 // Create prediction for a post
 router.post('/post/:postId/predict', async (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { postId } = req.params;
 
   try {
@@ -95,7 +95,7 @@ router.post('/post/:postId/predict', async (req, res) => {
 
 // Get all predictions
 router.get('/', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { limit = 50, min_confidence = 0 } = req.query;
 
   const sql = `
@@ -125,7 +125,7 @@ router.get('/', (req, res) => {
 
 // Compare prediction vs actual performance
 router.get('/post/:postId/accuracy', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { postId } = req.params;
 
   const sql = `
@@ -161,7 +161,7 @@ router.get('/post/:postId/accuracy', (req, res) => {
 
 // Get prediction accuracy stats
 router.get('/stats/accuracy', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
 
   const sql = `
     SELECT
@@ -182,7 +182,7 @@ router.get('/stats/accuracy', (req, res) => {
 
 // Get flagged predictions (prediction vs reality contradictions)
 router.get('/flags/contradictions', (req, res) => {
-  const db = req.db;
+  const db = req.app.locals.db;
   const { threshold = 0.3 } = req.query;
 
   const sql = `
