@@ -28,6 +28,7 @@ const contentGeneratorRouter = require('./api/content-generator');
 const configRouter = require('./api/config');
 const publishingRouter = require('./api/publishing');
 const migrationsRouter = require('./api/migrations');
+const schemaRouter = require('./api/schema');
 
 // Enhanced SMV routes
 const pagesEnhancedRouter = require('./api/pages-enhanced');
@@ -151,6 +152,7 @@ app.use('/api/scraped', scrapedRouter);
 app.use('/api/content', contentGeneratorRouter);
 app.use('/api/config', configRouter);
 app.use('/api/migrations', migrationsRouter);
+app.use('/api/schema', schemaRouter);
 app.use('/api/publishing', publishingRouter);
 
 // ============================================
