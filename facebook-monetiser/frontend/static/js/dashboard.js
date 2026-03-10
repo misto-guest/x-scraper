@@ -94,10 +94,38 @@ async function loadSources() {
     const data = await res.json();
     sources = data.sources;
     renderSources();
+    populateSourceDropdown();
   } catch (error) {
     console.error('Error loading sources:', error);
     document.getElementById('sources-list').innerHTML = '<p class="text-red-500">Error loading sources</p>';
   }
+}
+
+function populateSourceDropdown() {
+  const dropdown = document.getElementById('generator-source');
+  if (!dropdown) return;
+  
+  // Keep the first option
+  let options = '<option value="">Choose a source for AI inspiration...</option>';
+  
+  // Add sources grouped by type
+  const grouped = {};
+  sources.forEach(s => {
+    if (!grouped[s.source_type]) grouped[s.source_type] = [];
+    grouped[s.source_type].push(s);
+  });
+  
+  for (const [type, items] of Object.entries(grouped)) {
+    options += `<optgroup label="${type.replace('_', ' ').toUpperCase()}">`;
+    items.forEach(s => {
+      const label = s.title || s.url || s.author || 'Untitled';
+      const truncated = label.length > 50 ? label.substring(0, 50) + '...' : label;
+      options += `<option value="${s.id}">${truncated}</option>`;
+    });
+    options += '</optgroup>';
+  }
+  
+  dropdown.innerHTML = options;
 }
 
 function renderSources() {
@@ -431,11 +459,12 @@ async function deletePost(id) {
 
 // AI Content Generation
 async function generateCaption() {
+  const sourceId = document.getElementById('generator-source')?.value;
   try {
     const res = await fetch(`${API_BASE}/content/caption`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
+      body: JSON.stringify({ source_id: sourceId || null })
     });
 
     const data = await res.json();
@@ -448,11 +477,12 @@ async function generateCaption() {
 
 async function generateComment() {
   const caption = document.getElementById('post-caption').value;
+  const sourceId = document.getElementById('generator-source')?.value;
   try {
     const res = await fetch(`${API_BASE}/content/comment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ caption, include_cta: true })
+      body: JSON.stringify({ caption, source_id: sourceId || null, include_cta: true })
     });
 
     const data = await res.json();
@@ -464,11 +494,12 @@ async function generateComment() {
 
 async function generateImagePrompt() {
   const caption = document.getElementById('post-caption').value;
+  const sourceId = document.getElementById('generator-source')?.value;
   try {
     const res = await fetch(`${API_BASE}/content/image-prompt`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ caption })
+      body: JSON.stringify({ caption, source_id: sourceId || null })
     });
 
     const data = await res.json();
