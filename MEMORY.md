@@ -1,4 +1,128 @@
-# Clawe Deployment - FINAL STATUS
+# Clawe Deployment - PRODUCTION STATUS
+
+**Last Updated:** 2026-03-03
+
+---
+
+## 🛠️ Technology Preferences (CRITICAL)
+
+### Browser Automation Stack
+- ✅ **ALWAYS USE:** External browsers (AdsPower or BAS)
+- ✅ **USE:** React + TypeScript + Puppeteer-core
+- ❌ **NEVER:** Selenium, Playwright, or bundled browsers
+
+### Deployment Stack
+- ✅ **ALWAYS USE:** GitHub (version control)
+- ✅ **ALWAYS DEPLOY TO:** Railway
+- ✅ **USE:** Docker files for deployment
+- ⚠️ **CRITICAL:** Deploy ONLY from GitHub repositories, NEVER copy-paste
+
+**Reason:**
+- External browsers (AdsPower/BAS) for production stability
+- Puppeteer-core is lightweight (no bundled Chromium)
+- Railway for reliable deployment
+- Dockerfiles for containerization
+- GitHub-first deployment prevents confusion and debugging time-waste
+
+**Source:** B (rozhiu) - BNBGeeks & Keizersgracht group (2026-03-03, 2026-03-05)
+
+### Deployment Workflow (MANDATORY)
+1. **Code locally** on mac-mini
+2. **Push to GitHub** immediately (every project)
+3. **Deploy on Railway** from GitHub repository (NOT copy-paste)
+4. **Never deploy via copy-paste** - causes confusion with multiple similar projects
+
+**Why This Matters:**
+- When debugging, you need to find the correct project code
+- Copy-paste deployments create "ghost" code that doesn't exist in GitHub
+- Multiple similar projects (x-scrapper, x-scrapper-cron-backup, x-scrapper-ts) waste time
+- GitHub is the single source of truth
+
+### AdsPower PAI Connection Pattern
+- **SOP:** https://sop.rebel.pm/sop/407
+- **Stack:** TypeScript + Puppeteer-core
+- **Pattern:** Copy-paste the exact code from SOP #407
+- **Usage:** All projects that connect to AdsPower PAI use this exact pattern
+- **Location:** The SOP contains the production-tested connection code
+
+**Examples where this applies:**
+- X Scraper deployment
+- Web scraping tools
+- Browser automation scripts
+- SEO monitoring tools
+- Any new browser-based projects
+
+**AdsPower Setup:** See `/memory/ADSPOWER-SETUP.md` for full configuration
+
+---
+
+## 🚀 Quick Reference - Live Deployments
+
+### Fly.io (Free Tier) - 1 App Active
+
+| App | URL | Purpose | Stack | Status |
+|-----|-----|---------|-------|--------|
+| Facebook Monetiser | https://facebook-monetiser.fly.dev | Ad monitoring | Node.js + SQLite | ✅ Live |
+
+### VPS (45.76.167.14) - 1 App Deployed
+
+| App | URL | Purpose | Stack | Status |
+|-----|-----|---------|-------|--------|
+| X Scraper | http://45.76.167.14:5003 | @publisherinabox monitor | Python + Selenium | ✅ Installed |
+
+**VPS Access:**
+- SSH: `ssh bram_ai@45.76.167.14`
+- Password: `bram_ai_2026_!zx`
+- SSH Key: Available (saved 2026-03-03)
+- App Directory: `/opt/x-scraper`
+- Service: `systemctl status x-scraper`
+
+---
+
+## 📊 Deployment Summary (2026-03-03)
+
+**Total Deployments:** 2 apps (1 Fly.io, 1 VPS)  
+**Monthly Cost:** $0 (all free tiers)  
+**Total Size:** ~1.7GB containers  
+**Region:** Amsterdam (ams) for Fly.io  
+**Databases:** 3 SQLite with persistent volumes
+
+**Full Details:** See `/memory/2026-03-03.md` and `/memory/VPS-45.76.167.14.md`
+
+---
+
+## 🎯 Facebook Monetiser - Code Improvements (2026-03-10)
+
+**Changes Made:**
+- ✅ Added input validation (Joi) for all API endpoints
+- ✅ Added rate limiting (express-rate-limit)
+- ✅ Added structured request logging (access.log, error.log, audit.log)
+- ✅ Refactored to async/await pattern with Database utility wrapper
+- ✅ Added centralized config management
+- ✅ Added XSS sanitization middleware
+- ✅ Better error handling with proper HTTP status codes
+- ✅ Database connection pooling with graceful shutdown
+
+**Files Added:**
+- `backend/middleware/validation.js` - Input validation schemas
+- `backend/middleware/rateLimiting.js` - Rate limiters
+- `backend/middleware/logging.js` - Structured logging
+- `backend/utils/config.js` - Centralized configuration
+- `backend/utils/database.js` - Async SQLite wrapper
+
+**Files Updated:**
+- `backend/server.js` - Added all middleware
+- `backend/api/posts.js` - Added validation + async pattern
+
+**Next Improvements Available:**
+- Add authentication/authorization
+- Add request caching
+- Add API versioning
+- Add automated tests
+
+---
+
+# Railway Deployment - LEGACY (2026-02-12)
 
 **Date:** 2026-02-12
 

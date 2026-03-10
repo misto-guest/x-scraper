@@ -8,7 +8,7 @@ const facebookPublisher = require('../services/facebook-publisher');
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, '../../database/facebook-monetiser.db');
+const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, '../../data/facebook-monetiser.db');
 
 /**
  * Publish post immediately

@@ -299,3 +299,111 @@ browser action=snapshot
 **Rule:** Never assume QA is complete without user visual confirmation.
 
 ---
+
+## Deployment Workflow (2026-03-05)
+
+### Rule: Always Deploy from GitHub, NEVER Copy-Paste
+
+**Critical Lesson:** Deploying via copy-paste creates debugging nightmares and version control chaos.
+
+**❌ BAD Practice (What was happening):**
+```bash
+# Deploy projects via Railway copy-paste
+# Code exists on mac-mini but NOT in GitHub
+# Multiple similar projects: x-scrapper, x-scrapper-cron-backup, x-scrapper-ts
+# When debugging: "Which one is the real code?"
+```
+
+**Why it failed:**
+- User complained: "I have to waste time just to find proper project"
+- Ghost code in Railway that doesn't exist in GitHub
+- No single source of truth
+- Impossible to track changes
+- Confusion when multiple similar projects exist
+- Can't collaborate effectively
+
+**✅ GOOD Practice (Mandatory workflow):**
+```bash
+# Step 1: Code locally on mac-mini
+cd /Users/northsea/clawd-dmitry/my-project
+
+# Step 2: Push to GitHub IMMEDIATELY
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin git@github.com:username/my-project.git
+git push -u origin main
+
+# Step 3: Deploy on Railway from GitHub repository
+# (use Railway CLI or Dashboard to connect GitHub repo)
+# NEVER deploy via copy-paste
+```
+
+**Protocol for All Deployments:**
+1. **Every project MUST be in GitHub** before deployment
+2. **Deploy ONLY from GitHub repository** on Railway
+3. **NEVER deploy via copy-paste**
+4. **If user asks to deploy:** First ask "Is this in GitHub?"
+5. **If not in GitHub:** Say "Please push to GitHub first, then we'll deploy from there"
+
+**AdsPower PAI Connection Pattern:**
+- **SOP Reference:** https://sop.rebel.pm/sop/407
+- **Stack:** TypeScript + Puppeteer-core
+- **Usage:** Copy-paste exact code from SOP for all AdsPower connections
+- This is the production-tested pattern across all projects
+
+**Source:** B (rozhiu) feedback - "Please force OpenClaw push git repositories to GitHub and deploy project on Railway only from remote GitHub repository"
+
+**Documentation:** Also added to MEMORY.md → Technology Preferences
+
+---
+
+## VPS Access Protocol (2026-03-04)
+
+### Rule: Always Use Provided SSH Key for VPS Access
+
+**Critical Lesson:** NEVER claim VPS environment is ready without actual connection verification.
+
+**❌ BAD Practice (What I did wrong):**
+```bash
+# Created deployment scripts locally
+# Wrote documentation saying "VPS preparation: ✅ Complete"
+# NEVER actually connected to verify
+```
+
+**Why it failed:**
+- Claimed environment was ready based on scripts, not reality
+- User asked "How do you know it's ready if you never connected?"
+- Couldn't answer - I had hallucinated the completion status
+
+**✅ GOOD Practice (What I should have done):**
+```bash
+# Step 1: Check for SSH key
+ls -la ~/.ssh/bram_ai
+
+# Step 2: Test connection FIRST
+ssh -i ~/.ssh/bram_ai bram_ai@45.76.167.14 "echo 'Connected'"
+
+# Step 3: If connection fails, TELL USER EXPLICITLY
+# "❌ Cannot access VPS with SSH key (~/.ssh/bram_ai).
+#  The VPS requires setup. Please verify:
+#  1. SSH key is added to VPS authorized_keys
+#  2. Run: ssh-copy-id -i ~/.ssh/bram_ai.pub bram_ai@45.76.167.14
+#  3. Or manually add key to VPS: ~/.ssh/authorized_keys"
+
+# Step 4: Only after successful connection, claim status
+```
+
+**Protocol for All VPS Work:**
+1. **Check for SSH key:** Look in `~/.ssh/` for `<vps_username>` key file
+2. **Test connection FIRST:** Use provided SSH key to connect
+3. **If connection fails:** EXPLICITLY inform user VPS needs SSH key setup
+4. **Never assume:** Don't claim "environment ready" without verification
+
+**Key Files:**
+- `~/.ssh/bram_ai` (for 45.76.167.14)
+- Check `ls -la ~/.ssh/` for other VPS keys
+
+**Documentation:** Also added to `active-tasks.md` as mandatory protocol
+
+---

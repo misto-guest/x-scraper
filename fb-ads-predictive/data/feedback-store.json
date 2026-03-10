@@ -1,0 +1,450 @@
+{
+  "predictions": [
+    [
+      "ad_test_001",
+      {
+        "adId": "ad_test_001",
+        "prediction": {
+          "adId": "ad_test_001",
+          "adSetId": "adset_001",
+          "campaignId": "camp_001",
+          "predictions": {
+            "ctr": 0.008946688012744203,
+            "cvr": 0.06190014565566121,
+            "cpa": 11.541262203182356,
+            "impressions": 6999,
+            "clicks": 63,
+            "conversions": 4,
+            "spend": 50
+          },
+          "confidence": {
+            "ctr": 0.75,
+            "cvr": 0.65,
+            "cpa": 0.7
+          },
+          "factors": {
+            "placement": "feed",
+            "objective": "conversions",
+            "audienceType": "interest",
+            "creativeType": "image",
+            "biddingStrategy": "lowest_cost",
+            "budget": 50
+          }
+        },
+        "timestamp": "2026-03-09T15:49:25.819Z"
+      }
+    ],
+    [
+      "ad_test_002",
+      {
+        "adId": "ad_test_002",
+        "prediction": {
+          "adId": "ad_test_002",
+          "adSetId": "adset_001",
+          "campaignId": "camp_001",
+          "predictions": {
+            "ctr": 0.010814248313624828,
+            "cvr": 0.06859674643494527,
+            "cpa": 11.518678727922357,
+            "impressions": 6328,
+            "clicks": 68,
+            "conversions": 5,
+            "spend": 50
+          },
+          "confidence": {
+            "ctr": 0.75,
+            "cvr": 0.65,
+            "cpa": 0.7
+          },
+          "factors": {
+            "placement": "feed",
+            "objective": "conversions",
+            "audienceType": "interest",
+            "creativeType": "image",
+            "biddingStrategy": "lowest_cost",
+            "budget": 50
+          }
+        },
+        "timestamp": "2026-03-09T15:50:11.834Z"
+      }
+    ],
+    [
+      "ad_test_003",
+      {
+        "adId": "ad_test_003",
+        "prediction": {
+          "adId": "ad_test_003",
+          "adSetId": "adset_001",
+          "campaignId": "camp_001",
+          "predictions": {
+            "ctr": 0.010339966281310382,
+            "cvr": 0.066906008382517,
+            "cpa": 14.469727175407526,
+            "impressions": 5165,
+            "clicks": 53,
+            "conversions": 4,
+            "spend": 50
+          },
+          "confidence": {
+            "ctr": 0.75,
+            "cvr": 0.65,
+            "cpa": 0.7
+          },
+          "factors": {
+            "placement": "feed",
+            "objective": "conversions",
+            "audienceType": "interest",
+            "creativeType": "image",
+            "biddingStrategy": "lowest_cost",
+            "budget": 50
+          }
+        },
+        "timestamp": "2026-03-09T15:50:11.849Z"
+      }
+    ],
+    [
+      "ad_test_004",
+      {
+        "adId": "ad_test_004",
+        "prediction": {
+          "adId": "ad_test_004",
+          "adSetId": "adset_001",
+          "campaignId": "camp_001",
+          "predictions": {
+            "ctr": 0.008401475436809337,
+            "cvr": 0.06665974099973894,
+            "cpa": 11.522669773869671,
+            "impressions": 6510,
+            "clicks": 55,
+            "conversions": 4,
+            "spend": 50
+          },
+          "confidence": {
+            "ctr": 0.75,
+            "cvr": 0.65,
+            "cpa": 0.7
+          },
+          "factors": {
+            "placement": "feed",
+            "objective": "conversions",
+            "audienceType": "interest",
+            "creativeType": "image",
+            "biddingStrategy": "lowest_cost",
+            "budget": 50
+          }
+        },
+        "timestamp": "2026-03-09T15:50:11.863Z"
+      }
+    ],
+    [
+      "ad_test_005",
+      {
+        "adId": "ad_test_005",
+        "prediction": {
+          "adId": "ad_test_005",
+          "adSetId": "adset_001",
+          "campaignId": "camp_001",
+          "predictions": {
+            "ctr": 0.009259445327887287,
+            "cvr": 0.05683858106876532,
+            "cpa": 14.188031369011174,
+            "impressions": 6200,
+            "clicks": 57,
+            "conversions": 3,
+            "spend": 50
+          },
+          "confidence": {
+            "ctr": 0.75,
+            "cvr": 0.65,
+            "cpa": 0.7
+          },
+          "factors": {
+            "placement": "feed",
+            "objective": "conversions",
+            "audienceType": "interest",
+            "creativeType": "image",
+            "biddingStrategy": "lowest_cost",
+            "budget": 50
+          }
+        },
+        "timestamp": "2026-03-09T15:50:11.878Z"
+      }
+    ]
+  ],
+  "funnelPredictions": [
+    [
+      "ad_test_001",
+      {
+        "adId": "ad_test_001",
+        "prediction": {
+          "adId": "ad_test_001",
+          "funnel": {
+            "impression": {
+              "predictedCount": 3575,
+              "conversionRate": 0.0357525211411696,
+              "dropOff": 96425
+            },
+            "click": {
+              "predictedCount": 845,
+              "conversionRate": 0.23649125217230751,
+              "dropOff": 2730
+            },
+            "add_to_cart": {
+              "predictedCount": 486,
+              "conversionRate": 0.5751080998377784,
+              "dropOff": 359
+            },
+            "initiate_checkout": {
+              "predictedCount": 411,
+              "conversionRate": 0.8454799498500539,
+              "dropOff": 75
+            }
+          },
+          "audienceSize": 100000,
+          "predictedConversions": 0,
+          "overallConversionRate": 0.001,
+          "confidence": {
+            "overall": 0.6,
+            "earlyStages": 0.75,
+            "lateStages": 0.5
+          }
+        },
+        "timestamp": "2026-03-09T15:49:33.537Z"
+      }
+    ]
+  ],
+  "feedback": [
+    [
+      "ad_test_001",
+      {
+        "adId": "ad_test_001",
+        "impressions": 7000,
+        "clicks": 70,
+        "conversions": 5,
+        "spend": 55,
+        "reach": 0,
+        "frequency": 1,
+        "ctr": 0.01,
+        "cvr": 0.0714,
+        "cpa": 11,
+        "date": "2026-03-09",
+        "timestamp": "2026-03-09T15:49:29.850Z"
+      }
+    ],
+    [
+      "ad_test_002",
+      {
+        "adId": "ad_test_002",
+        "impressions": 5000,
+        "clicks": 45,
+        "conversions": 2,
+        "spend": 40,
+        "reach": 0,
+        "frequency": 1,
+        "ctr": 0.009,
+        "cvr": 0.044,
+        "cpa": 20,
+        "date": "2026-03-09",
+        "timestamp": "2026-03-09T15:50:38.792Z"
+      }
+    ],
+    [
+      "ad_test_003",
+      {
+        "adId": "ad_test_003",
+        "impressions": 8000,
+        "clicks": 100,
+        "conversions": 6,
+        "spend": 70,
+        "reach": 0,
+        "frequency": 1,
+        "ctr": 0.0125,
+        "cvr": 0.06,
+        "cpa": 11.67,
+        "date": "2026-03-09",
+        "timestamp": "2026-03-09T15:50:38.807Z"
+      }
+    ],
+    [
+      "ad_test_004",
+      {
+        "adId": "ad_test_004",
+        "impressions": 6000,
+        "clicks": 55,
+        "conversions": 3,
+        "spend": 45,
+        "reach": 0,
+        "frequency": 1,
+        "ctr": 0.0092,
+        "cvr": 0.055,
+        "cpa": 15,
+        "date": "2026-03-09",
+        "timestamp": "2026-03-09T15:50:38.820Z"
+      }
+    ],
+    [
+      "ad_test_005",
+      {
+        "adId": "ad_test_005",
+        "impressions": 9000,
+        "clicks": 85,
+        "conversions": 4,
+        "spend": 60,
+        "reach": 0,
+        "frequency": 1,
+        "ctr": 0.0094,
+        "cvr": 0.047,
+        "cpa": 15,
+        "date": "2026-03-09",
+        "timestamp": "2026-03-09T15:50:38.835Z"
+      }
+    ]
+  ],
+  "deltas": [
+    {
+      "adId": "ad_test_001",
+      "predicted": {
+        "ctr": 0.008946688012744203,
+        "cvr": 0.06190014565566121,
+        "cpa": 11.541262203182356,
+        "conversions": 4
+      },
+      "actual": {
+        "ctr": 0.01,
+        "cvr": 0.0714,
+        "cpa": 11,
+        "conversions": 5
+      },
+      "delta": {
+        "ctr": 0.0010533119872557974,
+        "cvr": 0.009499854344338796,
+        "cpa": -0.541262203182356,
+        "conversions": 1
+      },
+      "deltaPercent": {
+        "ctr": 11.77320574670086,
+        "cvr": 15.347062989455123,
+        "cpa": -4.689800765752552,
+        "conversions": 25
+      },
+      "accuracy": 0.8892227285048192,
+      "timestamp": "2026-03-09T15:49:29.850Z"
+    },
+    {
+      "adId": "ad_test_002",
+      "predicted": {
+        "ctr": 0.010814248313624828,
+        "cvr": 0.06859674643494527,
+        "cpa": 11.518678727922357,
+        "conversions": 5
+      },
+      "actual": {
+        "ctr": 0.009,
+        "cvr": 0.044,
+        "cpa": 20,
+        "conversions": 2
+      },
+      "delta": {
+        "ctr": -0.0018142483136248284,
+        "cvr": -0.024596746434945277,
+        "cpa": 8.481321272077643,
+        "conversions": -3
+      },
+      "deltaPercent": {
+        "ctr": -16.7764625058504,
+        "cvr": -35.8570161316207,
+        "cpa": 73.63102550571296,
+        "conversions": -60
+      },
+      "accuracy": 0.585349471438827,
+      "timestamp": "2026-03-09T15:50:38.792Z"
+    },
+    {
+      "adId": "ad_test_003",
+      "predicted": {
+        "ctr": 0.010339966281310382,
+        "cvr": 0.066906008382517,
+        "cpa": 14.469727175407526,
+        "conversions": 4
+      },
+      "actual": {
+        "ctr": 0.0125,
+        "cvr": 0.06,
+        "cpa": 11.67,
+        "conversions": 6
+      },
+      "delta": {
+        "ctr": 0.0021600337186896187,
+        "cvr": -0.0069060083825169954,
+        "cpa": -2.7997271754075257,
+        "conversions": 2
+      },
+      "deltaPercent": {
+        "ctr": 20.89014277148956,
+        "cvr": -10.32195545582956,
+        "cpa": -19.34885945994814,
+        "conversions": 50
+      },
+      "accuracy": 0.8379951714823686,
+      "timestamp": "2026-03-09T15:50:38.807Z"
+    },
+    {
+      "adId": "ad_test_004",
+      "predicted": {
+        "ctr": 0.008401475436809337,
+        "cvr": 0.06665974099973894,
+        "cpa": 11.522669773869671,
+        "conversions": 4
+      },
+      "actual": {
+        "ctr": 0.0092,
+        "cvr": 0.055,
+        "cpa": 15,
+        "conversions": 3
+      },
+      "delta": {
+        "ctr": 0.0007985245631906626,
+        "cvr": -0.01165974099973894,
+        "cpa": 3.477330226130329,
+        "conversions": -1
+      },
+      "deltaPercent": {
+        "ctr": 9.504575347469224,
+        "cvr": -17.491428596736675,
+        "cpa": 30.178164387006756,
+        "conversions": -25
+      },
+      "accuracy": 0.8109860664096253,
+      "timestamp": "2026-03-09T15:50:38.821Z"
+    },
+    {
+      "adId": "ad_test_005",
+      "predicted": {
+        "ctr": 0.009259445327887287,
+        "cvr": 0.05683858106876532,
+        "cpa": 14.188031369011174,
+        "conversions": 3
+      },
+      "actual": {
+        "ctr": 0.0094,
+        "cvr": 0.047,
+        "cpa": 15,
+        "conversions": 4
+      },
+      "delta": {
+        "ctr": 0.00014055467211271377,
+        "cvr": -0.009838581068765319,
+        "cpa": 0.8119686309888259,
+        "conversions": 1
+      },
+      "deltaPercent": {
+        "ctr": 1.5179599547868805,
+        "cvr": -17.309688038943577,
+        "cpa": 5.7229125723691965,
+        "conversions": 33.33333333333333
+      },
+      "accuracy": 0.9090386302627573,
+      "timestamp": "2026-03-09T15:50:38.835Z"
+    }
+  ]
+}

@@ -2,11 +2,66 @@
 
 **Purpose:** Project names and statuses. Key information about each project. Links to relevant docs/code.
 
-**Last Updated:** 2026-02-20
+**Last Updated:** 2026-03-03
 
 ---
 
-## 🚀 Railway Deployment - COMPLETE (2026-02-12)
+## 🚀 Fly.io Deployments - LIVE (2026-03-03)
+
+**Status:** ✅ 3 Apps Production Live
+
+**Production URLs:**
+- **Facebook Monetiser:** https://facebook-monetiser.fly.dev ✅
+- **Twitter Monitor:** https://twitter-monitor.fly.dev ✅
+- **Supalinks Dashboard:** https://supalinks-dashboard.fly.dev ✅
+
+**Configuration:**
+- **Provider:** Fly.io (Free Tier)
+- **Region:** Amsterdam (ams)
+- **Monthly Cost:** $0
+- **Total Size:** ~1.7GB containers
+- **Databases:** 3 SQLite with 1GB persistent volumes
+
+**Deployment Pattern:**
+```bash
+flyctl launch --no-deploy --name app-name --region ams
+flyctl deploy --remote-only
+flyctl status --app app-name
+```
+
+**Documentation:**
+- `memory/2026-03-03.md` - Complete deployment log
+- `MEMORY.md` - Quick reference guide
+
+---
+
+## 🖥️ VPS Deployments - LIVE (2026-03-03)
+
+**Status:** ✅ 1 App Installed
+
+**VPS Details:**
+- **IP:** 45.76.167.14
+- **SSH:** `ssh bram_ai@45.76.167.14` (password: `bram_ai_2026_!zx`)
+- **User:** bram_ai
+- **App Directory:** `/opt/x-scraper`
+
+**Production URLs:**
+- **X Scraper:** http://45.76.167.14:5003 ✅
+  - Purpose: Monitor @publisherinabox
+  - Stack: Python Flask + Selenium + Chrome
+  - Service: `systemctl status x-scraper`
+
+**Existing Bots on VPS:**
+- YouTube Tracker Bot
+- Music Availability Tester Bot
+
+**Documentation:**
+- `memory/VPS-45.76.167.14.md` - Complete VPS guide
+- `memory/2026-03-03.md` - Deployment steps
+
+---
+
+## 🗂️ Memory System Restructure (2026-02-20)
 
 **Status:** ✅ Production Ready (Manual steps required)
 

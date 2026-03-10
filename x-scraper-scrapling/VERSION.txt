@@ -1,0 +1,11 @@
+X.com Scraper using Scrapling
+Version: 1.0.0
+Created: 2026-03-06
+Author: Dmitry (OpenClaw Agent)
+
+Tech Stack:
+- Scrapling 0.2.11 (StealthyFetcher)
+- FastAPI 0.115.0
+- SQLAlchemy 2.0.36
+- APScheduler 3.10.4
+- SQLite
