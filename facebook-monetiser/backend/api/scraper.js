@@ -1,18 +1,19 @@
 /**
  * Scraping API
- * Scrape content from Facebook pages and groups
+ * Scrape content from Facebook pages and groups using Remote Browser API
  */
 
 const express = require('express');
 const router = express.Router();
 const FacebookScraper = require('../services/facebook-scraper');
 
-// Get scraper config from environment or use defaults
+// Get scraper config from environment
 const getScraperConfig = () => ({
-  server: process.env.ADSPOWER_SERVER || '77.42.21.134',
-  port: process.env.ADSPOWER_PORT || '50325',
-  profileId: process.env.ADSPOWER_PROFILE_ID,
-  apiKey: process.env.ADSPOWER_API_KEY
+  apiUrl: process.env.BROWSER_API_URL || 'http://95.217.224.154:3000',
+  apiKey: process.env.BROWSER_API_KEY,
+  provider: process.env.BROWSER_PROVIDER || 'adspower',
+  profileId: process.env.BROWSER_PROFILE_ID,
+  headless: process.env.BROWSER_HEADLESS !== 'false'
 });
 
 /**
@@ -25,22 +26,16 @@ router.post('/facebook-page', async (req, res) => {
     return res.status(400).json({ error: 'page_url is required' });
   }
 
-  // Extract page ID from URL
-  const pageIdMatch = page_url.match(/facebook\.com\/(?:profile\.php\?id=)?([^/?]+)/);
-  if (!pageIdMatch) {
-    return res.status(400).json({ error: 'Invalid Facebook URL' });
-  }
-
   const config = getScraperConfig();
   
-  // Check if AdsPower is configured
-  if (!config.profileId) {
+  // Check if Browser API is configured
+  if (!config.apiKey) {
     return res.json({
       success: false,
-      error: 'AdsPower not configured',
-      message: 'Please configure ADSPOWER_PROFILE_ID to enable scraping',
+      error: 'Browser API not configured',
+      message: 'Please configure BROWSER_API_KEY to enable scraping',
       page_url,
-      note: 'Add ADSPOWER_PROFILE_ID to Fly.io secrets to enable real scraping'
+      env_needed: ['BROWSER_API_KEY']
     });
   }
 
@@ -77,21 +72,15 @@ router.post('/facebook-group', async (req, res) => {
     return res.status(400).json({ error: 'group_url is required' });
   }
 
-  // Extract group ID from URL
-  const groupIdMatch = group_url.match(/facebook\.com\/groups\/(\d+)/);
-  if (!groupIdMatch) {
-    return res.status(400).json({ error: 'Invalid Facebook group URL' });
-  }
-
   const config = getScraperConfig();
   
-  if (!config.profileId) {
+  if (!config.apiKey) {
     return res.json({
       success: false,
-      error: 'AdsPower not configured',
-      message: 'Please configure ADSPOWER_PROFILE_ID to enable scraping',
+      error: 'Browser API not configured',
+      message: 'Please configure BROWSER_API_KEY to enable scraping',
       group_url,
-      note: 'Add ADSPOWER_PROFILE_ID to Fly.io secrets to enable real scraping'
+      env_needed: ['BROWSER_API_KEY']
     });
   }
 
@@ -119,36 +108,67 @@ router.post('/facebook-group', async (req, res) => {
 });
 
 /**
- * Get scraping status and history
+ * Get scraping status
  */
 router.get('/status', (req, res) => {
   const config = getScraperConfig();
   
   res.json({
-    configured: !!config.profileId,
-    adsPower: {
-      server: config.server,
-      port: config.port,
+    configured: !!config.apiKey,
+    browserApi: {
+      url: config.apiUrl,
+      provider: config.provider,
       profileId: config.profileId ? 'configured' : 'not set',
-      apiKey: config.apiKey ? 'configured' : 'not set'
+      headless: config.headless
     },
     scrapers: [
       {
         name: 'facebook_page',
-        status: config.profileId ? 'ready' : 'not_configured',
+        status: config.apiKey ? 'ready' : 'not_configured',
         last_run: null,
-        next_run: null,
         total_scraped: 0
       },
       {
         name: 'facebook_group',
-        status: config.profileId ? 'ready' : 'not_configured',
+        status: config.apiKey ? 'ready' : 'not_configured',
         last_run: null,
-        next_run: null,
         total_scraped: 0
       }
     ]
   });
+});
+
+/**
+ * Test Browser API connection
+ */
+router.get('/test-connection', async (req, res) => {
+  const config = getScraperConfig();
+  
+  if (!config.apiKey) {
+    return res.json({
+      success: false,
+      message: 'BROWSER_API_KEY not configured',
+      required: ['BROWSER_API_KEY']
+    });
+  }
+
+  try {
+    const params = new URLSearchParams({ x_api_key: config.apiKey });
+    const response = await fetch(`${config.apiUrl}/browsers/status?${params}`);
+    const data = await response.json();
+    
+    res.json({
+      success: true,
+      message: 'Browser API connected',
+      providers: data
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: 'Cannot connect to Browser API',
+      error: error.message
+    });
+  }
 });
 
 /**
@@ -165,11 +185,10 @@ router.post('/add-and-scrape', async (req, res) => {
   const sourceType = isPage ? 'competitor_post' : 'facebook_group_post';
   const authorLabel = isPage ? 'Page' : 'Group';
 
-  // If AdsPower is configured, start scraping immediately
   const config = getScraperConfig();
   let scrapedPosts = [];
   
-  if (config.profileId) {
+  if (config.apiKey) {
     try {
       const scraper = new FacebookScraper(config);
       if (isPage) {
@@ -199,46 +218,6 @@ router.post('/add-and-scrape', async (req, res) => {
       posts: scrapedPosts
     }
   });
-});
-
-/**
- * Test AdsPower connection
- */
-router.get('/test-connection', async (req, res) => {
-  const config = getScraperConfig();
-  
-  if (!config.profileId) {
-    return res.json({
-      success: false,
-      message: 'AdsPower not configured',
-      required: ['ADSPOWER_PROFILE_ID']
-    });
-  }
-
-  try {
-    const response = await fetch(`${config.baseUrl || `http://${config.server}:${config.port}/api/v2/`}user/info`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        ...(config.apiKey && { 'X-Api-Key': config.apiKey })
-      },
-      body: JSON.stringify({})
-    });
-    
-    const data = await response.json();
-    
-    res.json({
-      success: data.code === 0,
-      message: data.code === 0 ? 'AdsPower connected' : 'AdsPower error',
-      details: data
-    });
-  } catch (error) {
-    res.json({
-      success: false,
-      message: 'Cannot connect to AdsPower',
-      error: error.message
-    });
-  }
 });
 
 module.exports = router;

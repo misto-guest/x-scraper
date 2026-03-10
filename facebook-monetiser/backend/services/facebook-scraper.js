@@ -1,70 +1,78 @@
 /**
- * Facebook Scraping Service using AdsPower
- * Real browser automation for scraping FB pages and groups
+ * Facebook Scraping Service using Remote Browser API
+ * Supports AdsPower, BAS, and Puppeteer providers
  */
 
 const puppeteer = require('puppeteer-core');
 
 class FacebookScraper {
   constructor(config = {}) {
-    this.server = config.server || process.env.ADSPOWER_SERVER || '77.42.21.134';
-    this.port = config.port || process.env.ADSPOWER_PORT || '50325';
-    this.baseUrl = `http://${this.server}:${this.port}/api/v2/`;
-    this.profileId = config.profileId || process.env.ADSPOWER_PROFILE_ID;
-    this.apiKey = config.apiKey || process.env.ADSPOWER_API_KEY;
+    this.apiUrl = config.apiUrl || process.env.BROWSER_API_URL || 'http://95.217.224.154:3000';
+    this.apiKey = config.apiKey || process.env.BROWSER_API_KEY;
+    this.provider = config.provider || process.env.BROWSER_PROVIDER || 'adspower';
+    this.profileId = config.profileId || process.env.BROWSER_PROFILE_ID;
+    this.headless = config.headless !== undefined ? config.headless : true;
   }
 
   /**
-   * Start browser via AdsPower API
+   * Start browser via Remote Browser API
    */
   async startBrowser() {
-    const response = await fetch(`${this.baseUrl}browser-profile/start`, {
+    if (!this.apiKey) {
+      throw new Error('BROWSER_API_KEY not configured');
+    }
+
+    const params = new URLSearchParams({
+      x_api_key: this.apiKey
+    });
+
+    const response = await fetch(`${this.apiUrl}/browsers/start?${params}`, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        ...(this.apiKey && { 'X-Api-Key': this.apiKey })
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        profile_id: this.profileId,
-        launch_args: [
-          '--remote-allow-origins=*',
-          '--disable-web-security',
-          '--disable-site-isolation-trials'
-        ]
+        provider: this.provider,
+        profileId: this.profileId,
+        headless: this.headless,
+        proxy: process.env.PROXY_URL || undefined,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
       })
     });
 
     const data = await response.json();
     
-    if (data.code !== 0) {
-      throw new Error(`AdsPower error: ${data.msg}`);
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to start browser');
     }
 
-    const wsUrl = data.data.ws.puppeteer;
+    const { puppeteerUrl, browserId } = data.data;
     
     // Connect to the browser
     const browser = await puppeteer.connect({
-      browserWSEndpoint: wsUrl,
+      browserWSEndpoint: puppeteerUrl,
       defaultViewport: null
     });
 
-    return browser;
+    return { browser, browserId };
   }
 
   /**
-   * Stop browser profile
+   * Stop browser
    */
-  async stopBrowser() {
-    if (!this.profileId) return;
+  async stopBrowser(browserId) {
+    if (!browserId || !this.apiKey) return;
     
+    const params = new URLSearchParams({
+      x_api_key: this.apiKey
+    });
+
     try {
-      await fetch(`${this.baseUrl}browser-profile/stop`, {
+      await fetch(`${this.apiUrl}/browsers/stop?${params}`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...(this.apiKey && { 'X-Api-Key': this.apiKey })
-        },
-        body: JSON.stringify({ profile_id: this.profileId })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: this.provider,
+          browserId
+        })
       });
     } catch (e) {
       console.error('Error stopping browser:', e);
@@ -76,10 +84,14 @@ class FacebookScraper {
    */
   async scrapePagePosts(pageUrl, limit = 10) {
     let browser;
+    let browserId;
     const posts = [];
     
     try {
-      browser = await this.startBrowser();
+      const result = await this.startBrowser();
+      browser = result.browser;
+      browserId = result.browserId;
+      
       const page = await browser.newPage();
       
       // Set a realistic user agent
@@ -109,7 +121,7 @@ class FacebookScraper {
             // Get post text
             let text = '';
             const textDiv = post.querySelector('div[data-testid="post_message"]') || 
-                           post.querySelector('span[class*="x1lliihq"]');
+                           post.querySelector('span[class*="xlliihq"]');
             if (textDiv) text = textDiv.innerText.trim();
             
             // Get post link
@@ -144,7 +156,7 @@ class FacebookScraper {
     } finally {
       if (browser) {
         await browser.close();
-        await this.stopBrowser();
+        await this.stopBrowser(browserId);
       }
     }
     
@@ -155,8 +167,6 @@ class FacebookScraper {
    * Scrape Facebook Group posts
    */
   async scrapeGroupPosts(groupUrl, limit = 10) {
-    // Group scraping is similar to page scraping
-    // Just use a different URL pattern
     return this.scrapePagePosts(groupUrl, limit);
   }
 }
