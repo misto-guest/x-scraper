@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
       sql += ' AND ' + conditions.join(' AND ');
     }
 
-    sql += ' ORDER BY gp.created_at DESC LIMIT ?';
+    sql += ' ORDER BY gp.generated_at DESC LIMIT ?';
     params.push(parseInt(limit) || 50);
 
     const rows = await dbAll(db, sql, params);
@@ -324,7 +324,7 @@ router.get('/queue/approval', validate('approvalQueueQuery', 'query'), async (re
       JOIN pages p ON gp.page_id = p.id
       WHERE gp.approval_status = 'pending'
         AND gp.risk_score >= ?
-      ORDER BY gp.risk_score DESC, gp.created_at ASC
+      ORDER BY gp.risk_score DESC, gp.generated_at ASC
     `;
 
     const rows = await dbAll(db, sql, [parseFloat(min_risk)]);
