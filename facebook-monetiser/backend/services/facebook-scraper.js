@@ -20,8 +20,8 @@ class FacebookScraper {
    * Fallback: Simple HTTP scraping (no browser)
    * Returns sample data for demonstration
    */
-  async scrapeWithFallback(pageUrl, limit, days) {
-    console.log('Using HTTP fallback scraping...');
+  scrapeWithFallback(pageUrl, limit, days) {
+    console.log('Using HTTP fallback scraping for:', pageUrl);
     
     // Extract page ID from URL
     const pageIdMatch = pageUrl.match(/id=(\d+)/);
@@ -29,12 +29,16 @@ class FacebookScraper {
     const pageId = pageIdMatch ? pageIdMatch[1] : (pageNameMatch ? pageNameMatch[1] : 'unknown');
     
     // Return sample posts (in real implementation, use Graph API or Firecrawl)
-    return [{
-      text: `Sample post from ${pageId} - Auto-scraped content would appear here`,
-      link: `https://facebook.com/${pageId}/posts/123456789`,
-      timestamp: new Date().toISOString(),
-      post_date: new Date().toISOString().split('T')[0]
-    }];
+    const posts = [];
+    for (let i = 0; i < Math.min(limit, 3); i++) {
+      posts.push({
+        text: `Sample post #${i+1} from ${pageId} - This is fallback content. Configure real scraping to get actual posts.`,
+        link: `https://facebook.com/${pageId}/posts/${123456789 + i}`,
+        timestamp: new Date().toISOString(),
+        post_date: new Date().toISOString().split('T')[0]
+      });
+    }
+    return posts;
   }
 
   /**
@@ -108,17 +112,17 @@ class FacebookScraper {
    * @param {number} limit - Maximum posts to scrape
    * @param {number} days - Only get posts from last N days
    */
-  async scrapePagePosts(pageUrl, limit = 10, days = 5) {
+  scrapePagePosts(pageUrl, limit = 10, days = 5) {
     // Skip browser and use fallback directly since remote browser API 
     // is not reachable from this environment
-    console.log('Using fallback HTTP scraping method...');
+    console.log('Scrape request for:', pageUrl);
     return this.scrapeWithFallback(pageUrl, limit, days);
   }
 
   /**
    * Scrape Facebook Group posts
    */
-  async scrapeGroupPosts(groupUrl, limit = 10, days = 5) {
+  scrapeGroupPosts(groupUrl, limit = 10, days = 5) {
     return this.scrapePagePosts(groupUrl, limit, days);
   }
 }
