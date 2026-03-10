@@ -8,85 +8,29 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Reset and recreate sources table with proper schema
+ * Full database reset - WARNING: Deletes entire database
  */
 router.post('/reset-sources', (req, res) => {
   const db = req.db;
   
-  // Drop sources table if exists
-  db.run('DROP TABLE IF EXISTS sources', (err) => {
+  // Close the database connection
+  db.close((err) => {
     if (err) {
-      return res.status(500).json({ error: 'Drop: ' + err.message });
+      console.error('Error closing db:', err);
     }
     
-    // Drop insights table (has foreign key to sources)
-    db.run('DROP TABLE IF EXISTS insights', (err) => {
+    const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../data/facebook-monetiser.db');
+    
+    // Delete the database file
+    fs.unlink(dbPath, (err) => {
       if (err) {
-        return res.status(500).json({ error: 'Drop insights: ' + err.message });
+        return res.status(500).json({ error: 'Delete db file: ' + err.message });
       }
       
-      // Create sources with correct schema
-      const sql = `
-        CREATE TABLE sources (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          source_type TEXT NOT NULL CHECK(source_type IN ('tweet', 'article', 'case_study', 'video', 'competitor_post', 'facebook_group_post')),
-          title TEXT,
-          url TEXT UNIQUE,
-          author TEXT,
-          platform TEXT,
-          published_date TIMESTAMP,
-          content_text TEXT,
-          raw_data TEXT,
-          is_verified BOOLEAN DEFAULT 0,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-      `;
-      
-      db.run(sql, (err) => {
-        if (err) {
-          return res.status(500).json({ error: 'Create sources: ' + err.message });
-        }
-        
-        // Create insights table
-        const insightsSQL = `
-          CREATE TABLE insights (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            source_id INTEGER,
-            insight_text TEXT NOT NULL,
-            category TEXT,
-            effectiveness_score REAL DEFAULT 0.5,
-            tags TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE CASCADE
-          )
-        `;
-        
-        db.run(insightsSQL, (err) => {
-          if (err) {
-            return res.status(500).json({ error: 'Create insights: ' + err.message });
-          }
-          
-          // Create indexes
-          db.run('CREATE INDEX IF NOT EXISTS idx_sources_type ON sources(source_type)', (err) => {
-            if (err) {
-              return res.status(500).json({ error: 'Index1: ' + err.message });
-            }
-            
-            db.run('CREATE INDEX IF NOT EXISTS idx_sources_url ON sources(url)', (err) => {
-              if (err) {
-                return res.status(500).json({ error: 'Index2: ' + err.message });
-              }
-              
-              db.run('CREATE INDEX IF NOT EXISTS idx_insights_source ON insights(source_id)', (err) => {
-                if (err) {
-                  return res.status(500).json({ error: 'Index3: ' + err.message });
-                }
-                
-                res.json({ success: true, message: 'Sources and insights tables recreated with facebook_group_post support' });
-              });
-            });
-          });
-        });
+      res.json({ 
+        success: true, 
+        message: 'Database deleted. Please restart the app to recreate it with proper schema.',
+        db_path: dbPath
       });
     });
   });
