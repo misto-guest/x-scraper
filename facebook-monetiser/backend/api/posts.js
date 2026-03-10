@@ -3,8 +3,19 @@ const router = express.Router();
 const riskScorer = require('../services/risk-scoring');
 const { validate } = require('../middleware/validation');
 
+// Helper to wrap sqlite3 callbacks in promises
+const dbGet = (db, sql, params) => new Promise((resolve, reject) => {
+  db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
+});
+const dbAll = (db, sql, params) => new Promise((resolve, reject) => {
+  db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
+});
+const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
+  db.run(sql, params, function(err) { err ? reject(err) : resolve(this); });
+});
+
 // Get all posts with filtering
-router.get('/', validate('postQuery', 'query'), async (req, res) => {
+router.get('/', async (req, res) => {
   const db = req.app.locals.rawDb;
   const { page_id, status, content_type, limit } = req.query;
 
@@ -41,7 +52,7 @@ router.get('/', validate('postQuery', 'query'), async (req, res) => {
     sql += ' ORDER BY gp.created_at DESC LIMIT ?';
     params.push(parseInt(limit) || 50);
 
-    const rows = await db.all(sql, params);
+    const rows = await dbAll(db, sql, params);
     res.json({ posts: rows, count: rows.length });
   } catch (err) {
     console.error('Error fetching posts:', err);
@@ -55,14 +66,14 @@ router.get('/:id', validate('idParam', 'params'), async (req, res) => {
   const { id } = req.params;
 
   try {
-    const post = await db.get('SELECT * FROM generated_posts WHERE id = ?', [id]);
+    const post = await dbGet(db, 'SELECT * FROM generated_posts WHERE id = ?', [id]);
     
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
     // Get performance data
-    const performance = await db.get('SELECT * FROM post_performance WHERE post_id = ?', [id]);
+    const performance = await dbGet(db, 'SELECT * FROM post_performance WHERE post_id = ?', [id]);
     post.performance = performance;
     
     res.json({ post });
@@ -118,7 +129,7 @@ router.post('/', validate('createPost', 'body'), async (req, res) => {
       scheduled_for || null
     ];
 
-    const result = await db.run(sql, params);
+    const result = await dbRun(db, sql, params);
     
     res.status(201).json({
       message: 'Post created successfully',
@@ -163,7 +174,7 @@ router.put('/:id', validate('idParam', 'params'), validate('updatePost', 'body')
       id
     ];
 
-    const result = await db.run(sql, params);
+    const result = await dbRun(db, sql, params);
     
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Post not found' });
@@ -184,7 +195,7 @@ router.put('/:id/approval', validate('idParam', 'params'), validate('approvalSta
 
   try {
     const sql = 'UPDATE generated_posts SET approval_status = ? WHERE id = ?';
-    const result = await db.run(sql, [status, id]);
+    const result = await dbRun(db, sql, [status, id]);
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Post not found' });
@@ -211,7 +222,7 @@ router.post('/:id/post', validate('idParam', 'params'), validate('markPosted', '
       WHERE id = ?
     `;
 
-    const result = await db.run(sql, [id]);
+    const result = await dbRun(db, sql, [id]);
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Post not found' });
@@ -219,7 +230,7 @@ router.post('/:id/post', validate('idParam', 'params'), validate('markPosted', '
 
     // Update with platform post ID if provided
     if (platform_post_id) {
-      await db.run(
+      await dbRun(db, 
         'UPDATE generated_posts SET platform_post_id = ? WHERE id = ?',
         [platform_post_id, id]
       );
@@ -274,7 +285,7 @@ router.put('/:id/performance', validate('idParam', 'params'), validate('performa
       ctr || null
     ];
 
-    await db.run(sql, params);
+    await dbRun(db, sql, params);
     res.json({ message: 'Performance data updated successfully' });
   } catch (err) {
     console.error('Error updating performance:', err);
@@ -288,7 +299,7 @@ router.delete('/:id', validate('idParam', 'params'), async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await db.run('DELETE FROM generated_posts WHERE id = ?', [id]);
+    const result = await dbRun(db, 'DELETE FROM generated_posts WHERE id = ?', [id]);
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Post not found' });
@@ -316,7 +327,7 @@ router.get('/queue/approval', validate('approvalQueueQuery', 'query'), async (re
       ORDER BY gp.risk_score DESC, gp.created_at ASC
     `;
 
-    const rows = await db.all(sql, [parseFloat(min_risk)]);
+    const rows = await dbAll(db, sql, [parseFloat(min_risk)]);
     res.json({ posts: rows, count: rows.length });
   } catch (err) {
     console.error('Error fetching approval queue:', err);
@@ -339,7 +350,7 @@ router.get('/queue/scheduled', async (req, res) => {
       ORDER BY gp.scheduled_for ASC
     `;
 
-    const rows = await db.all(sql, []);
+    const rows = await dbAll(db, sql, []);
     res.json({ posts: rows, count: rows.length });
   } catch (err) {
     console.error('Error fetching scheduled posts:', err);
