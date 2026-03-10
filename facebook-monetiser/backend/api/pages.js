@@ -95,7 +95,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const db = req.app.locals.rawDb;
   const { id } = req.params;
-  const { name, category, about, followers_count, country, is_active } = req.body;
+  const { name, category, about, followers_count, country, is_active, is_own, auto_scrape } = req.body;
 
   // Enforce US-only
   if (country && country !== 'US') {
@@ -111,10 +111,12 @@ router.put('/:id', (req, res) => {
         about = COALESCE(?, about),
         followers_count = COALESCE(?, followers_count),
         is_active = COALESCE(?, is_active),
+        is_own = COALESCE(?, is_own),
+        auto_scrape = COALESCE(?, auto_scrape),
         updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `;
-  const params = [name, category, about, followers_count, is_active, id];
+  const params = [name, category, about, followers_count, is_active, is_own, auto_scrape, id];
 
   db.run(sql, params, function(err) {
     if (err) {
