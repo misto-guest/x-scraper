@@ -37,9 +37,9 @@ class Database {
         }
         
         this.isOpen = true;
-        console.log('Connected to SQLite database:', this.db        // Enable WALPath);
+        console.log('Connected to SQLite database:', this.dbPath);
         
- mode for better performance
+        // Enable WAL mode for better performance
         this.db.run('PRAGMA journal_mode=WAL;');
         
         resolve(this);
