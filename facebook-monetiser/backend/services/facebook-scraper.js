@@ -127,4 +127,4 @@ class FacebookScraper {
   }
 }
 
-module.exports = { FacebookScraper };
+module.exports = FacebookScraper;
