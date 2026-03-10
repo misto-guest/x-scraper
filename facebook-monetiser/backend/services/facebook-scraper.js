@@ -81,11 +81,19 @@ class FacebookScraper {
 
   /**
    * Scrape Facebook Page posts
+   * @param {string} pageUrl - URL of the Facebook page
+   * @param {number} limit - Maximum posts to scrape
+   * @param {number} days - Only get posts from last N days
    */
-  async scrapePagePosts(pageUrl, limit = 10) {
+  async scrapePagePosts(pageUrl, limit = 10, days = 5) {
     let browser;
     let browserId;
     const posts = [];
+    
+    // Calculate cutoff date
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    const cutoffStr = cutoffDate.toISOString().split('T')[0]; // YYYY-MM-DD
     
     try {
       const result = await this.startBrowser();
@@ -110,7 +118,7 @@ class FacebookScraper {
       }
       
       // Extract posts
-      const scrapedPosts = await page.evaluate((limit) => {
+      const scrapedPosts = await page.evaluate((limit, cutoffStr) => {
         const results = [];
         const posts = document.querySelectorAll('div[role="article"]');
         
@@ -130,23 +138,60 @@ class FacebookScraper {
                        post.querySelector('a[href*="/stories/"]');
             const postLink = link ? link.href : '';
             
-            // Get timestamp
-            const time = post.querySelector('span[class*="x1nh"] time') ||
-                        post.querySelector('a[href*="?__cft__"]');
-            const timestamp = time ? time.dateTime || time.innerText : '';
+            // Get timestamp - try multiple selectors
+            const timeEl = post.querySelector('span[class*="x1nh"] time') ||
+                          post.querySelector('a[href*="?__cft__"]') ||
+                          post.querySelector('abbr[role="anchor"]') ||
+                          post.querySelector('span[data-testid="story-subtitle"]');
+            let timestamp = '';
+            let postDate = null;
+            
+            if (timeEl) {
+              // Try to get ISO date first
+              timestamp = timeEl.dateTime || timeEl.getAttribute('datetime') || timeEl.innerText.trim();
+              
+              // Parse the date
+              if (timestamp) {
+                // Handle relative dates like "2 hours ago", "Yesterday", etc.
+                const now = new Date();
+                const text = timeEl.innerText.trim().toLowerCase();
+                
+                if (text.includes('hour') || text.includes('min')) {
+                  postDate = now; // Recent post
+                } else if (text.includes('yesterday')) {
+                  postDate = new Date(now);
+                  postDate.setDate(postDate.getDate() - 1);
+                } else if (text.includes('day')) {
+                  const match = text.match(/(\d+)\s*day/);
+                  if (match) {
+                    postDate = new Date(now);
+                    postDate.setDate(postDate.getDate() - parseInt(match[1]));
+                  }
+                } else {
+                  // Try parsing as date
+                  postDate = new Date(timestamp);
+                }
+              }
+            }
+            
+            // Filter by cutoff date
+            if (postDate && postDate.toISOString().split('T')[0] < cutoffStr) {
+              continue; // Skip old posts
+            }
             
             if (text || postLink) {
               results.push({
                 text: text.substring(0, 5000),
                 link: postLink,
-                timestamp: timestamp
+                timestamp: timestamp || (postDate ? postDate.toISOString() : ''),
+                post_date: postDate ? postDate.toISOString().split('T')[0] : null
               });
             }
           } catch (e) {}
         }
         
         return results;
-      }, limit);
+      }, limit, cutoffStr);
       
       posts.push(...scrapedPosts);
       
@@ -166,8 +211,8 @@ class FacebookScraper {
   /**
    * Scrape Facebook Group posts
    */
-  async scrapeGroupPosts(groupUrl, limit = 10) {
-    return this.scrapePagePosts(groupUrl, limit);
+  async scrapeGroupPosts(groupUrl, limit = 10, days = 5) {
+    return this.scrapePagePosts(groupUrl, limit, days);
   }
 }
 

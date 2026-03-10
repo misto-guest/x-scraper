@@ -20,7 +20,7 @@ const getScraperConfig = () => ({
  * Scrape Facebook page posts
  */
 router.post('/facebook-page', async (req, res) => {
-  const { page_url, limit = 10 } = req.body;
+  const { page_url, limit = 10, days = 5 } = req.body;
   
   if (!page_url) {
     return res.status(400).json({ error: 'page_url is required' });
@@ -42,8 +42,8 @@ router.post('/facebook-page', async (req, res) => {
   const scraper = new FacebookScraper(config);
 
   try {
-    console.log(`Starting scrape of ${page_url}`);
-    const posts = await scraper.scrapePagePosts(page_url, limit);
+    console.log(`Starting scrape of ${page_url}, limit: ${limit}, days: ${days}`);
+    const posts = await scraper.scrapePagePosts(page_url, limit, days);
     
     res.json({
       success: true,
@@ -66,7 +66,7 @@ router.post('/facebook-page', async (req, res) => {
  * Scrape Facebook group posts
  */
 router.post('/facebook-group', async (req, res) => {
-  const { group_url, limit = 10 } = req.body;
+  const { group_url, limit = 10, days = 5 } = req.body;
   
   if (!group_url) {
     return res.status(400).json({ error: 'group_url is required' });
@@ -87,8 +87,8 @@ router.post('/facebook-group', async (req, res) => {
   const scraper = new FacebookScraper(config);
 
   try {
-    console.log(`Starting scrape of ${group_url}`);
-    const posts = await scraper.scrapeGroupPosts(group_url, limit);
+    console.log(`Starting scrape of ${group_url}, limit: ${limit}, days: ${days}`);
+    const posts = await scraper.scrapeGroupPosts(group_url, limit, days);
     
     res.json({
       success: true,
