@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
     firecrawl_configured: !!process.env.FIRECRAWL_API_KEY,
     facebook_configured: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET),
     environment: process.env.NODE_ENV || 'development',
-    has_database: !!req.db,
+    has_database: !!(req.app.locals.rawDb || req.app.locals.db),
     zai_api_configured: !!process.env.ZAI_API_KEY
   };
 
