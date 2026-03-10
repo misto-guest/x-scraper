@@ -69,7 +69,7 @@ router.post('/', (req, res) => {
   const db = req.db;
   const { source_type, title, url, author, platform, published_date, content_text, raw_data } = req.body;
 
-  const validTypes = ['tweet', 'article', 'case_study', 'video', 'competitor_post'];
+  const validTypes = ['tweet', 'article', 'case_study', 'video', 'competitor_post', 'facebook_group_post'];
   if (!validTypes.includes(source_type)) {
     return res.status(400).json({ error: 'Invalid source type' });
   }
@@ -97,6 +97,72 @@ router.post('/', (req, res) => {
       message: 'Source created successfully',
       source_id: this.lastID,
       id: this.lastID
+    });
+  });
+});
+
+// Add Facebook group post from URL
+router.post('/facebook-group', (req, res) => {
+  const db = req.db;
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
+
+  // Parse Facebook group URL
+  // Format: https://www.facebook.com/groups/{group_id}/posts/{post_id}/
+  const fbGroupRegex = /facebook\.com\/groups\/(\d+)\/posts\/(\d+)/;
+  const match = url.match(fbGroupRegex);
+
+  if (!match) {
+    return res.status(400).json({ 
+      error: 'Invalid Facebook group post URL',
+      expected_format: 'https://www.facebook.com/groups/{group_id}/posts/{post_id}/'
+    });
+  }
+
+  const groupId = match[1];
+  const postId = match[2];
+
+  // Check if already exists
+  db.get('SELECT * FROM sources WHERE url = ?', [url], (err, existing) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (existing) {
+      return res.status(409).json({ 
+        error: 'Source already exists',
+        source_id: existing.id
+      });
+    }
+
+    // Extract group name from URL (we'll need to scrape this later)
+    const sql = `
+      INSERT INTO sources (source_type, title, url, author, platform, content_text, raw_data)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const params = [
+      'facebook_group_post',
+      `Facebook Group Post #${postId}`,
+      url,
+      `Group ${groupId}`,
+      'facebook',
+      null, // content_text - would need to scrape
+      JSON.stringify({ group_id: groupId, post_id: postId })
+    ];
+
+    db.run(sql, params, function(err) {
+      if (err) {
+        return res.status(400).json({ error: err.message });
+      }
+      res.status(201).json({
+        message: 'Facebook group post added successfully',
+        source_id: this.lastID,
+        id: this.lastID,
+        group_id: groupId,
+        post_id: postId
+      });
     });
   });
 });

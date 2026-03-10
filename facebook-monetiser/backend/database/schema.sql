@@ -40,7 +40,7 @@ CREATE INDEX idx_assets_type ON page_assets(asset_type);
 -- 3. Sources: Tweets, articles, case studies (full traceability)
 CREATE TABLE IF NOT EXISTS sources (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    source_type TEXT NOT NULL CHECK(source_type IN ('tweet', 'article', 'case_study', 'video', 'competitor_post')),
+    source_type TEXT NOT NULL CHECK(source_type IN ('tweet', 'article', 'case_study', 'video', 'competitor_post', 'facebook_group_post')),
     title TEXT,
     url TEXT UNIQUE,
     author TEXT,

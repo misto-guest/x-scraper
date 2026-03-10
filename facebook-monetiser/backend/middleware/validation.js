@@ -64,7 +64,7 @@ const schemas = {
 
   // Source creation
   createSource: Joi.object({
-    source_type: Joi.string().valid('tweet', 'article', 'case_study', 'video', 'competitor_post').required(),
+    source_type: Joi.string().valid('tweet', 'article', 'case_study', 'video', 'competitor_post', 'facebook_group_post').required(),
     title: Joi.string().max(500).allow('', null),
     url: Joi.string().uri().max(2000).required(),
     author: Joi.string().max(255).allow('', null),
@@ -94,6 +94,11 @@ const schemas = {
   // Generic ID parameter
   idParam: Joi.object({
     id: Joi.number().integer().positive().required()
+  }),
+
+  // Facebook group post URL
+  facebookGroupPost: Joi.object({
+    url: Joi.string().uri().pattern(/facebook\.com\/groups\/\d+\/posts\/\d+/).required()
   }),
 
   // Query filters
