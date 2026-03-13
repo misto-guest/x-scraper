@@ -55,11 +55,14 @@ class FacebookScraper {
 
     const data = await response.json();
 
+    console.log('Browser API response:', JSON.stringify(data));
+
     if (!data.success) {
       throw new Error(data.error || 'Failed to start browser');
     }
 
     const { puppeteerUrl, browserId } = data.data;
+    console.log('puppeteerUrl:', puppeteerUrl);
     console.log('Browser started, connecting...');
 
     // Connect to the browser
