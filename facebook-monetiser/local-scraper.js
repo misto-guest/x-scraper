@@ -27,7 +27,7 @@ const scraper = new FacebookScraper({
   apiUrl: 'http://95.217.224.154:3000',
   apiKey: 'JTYDA_7531D_98HGTR_YT154',
   provider: 'adspower',
-  profileId: 'k1ael7rl'
+  profileId: 'k1aem3s1'
 });
 
 /**
