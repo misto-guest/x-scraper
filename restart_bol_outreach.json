@@ -1,8 +1,0 @@
-{
-  "operationName": "ProjectServiceRestart",
-  "query": "mutation ProjectServiceRestart($projectId: String!, $serviceId: String!) { projectServiceRestart(projectId: $projectId, serviceId: $serviceId) { id } }",
-  "variables": {
-    "projectId": "304d57d9-0378-4065-91ad-140105e7071c",
-    "serviceId": "0d8c45bd-2218-4766-b390-4d102b757157"
-  }
-}

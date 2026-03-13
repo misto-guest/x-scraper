@@ -43,7 +43,7 @@ router.post('/facebook-page', async (req, res) => {
 
   try {
     console.log(`Starting scrape of ${page_url}, limit: ${limit}, days: ${days}`);
-    const posts = scraper.scrapePagePosts(page_url, limit, days);
+    const posts = await scraper.scrapePagePosts(page_url, limit, days);
     
     res.json({
       success: true,
@@ -88,7 +88,7 @@ router.post('/facebook-group', async (req, res) => {
 
   try {
     console.log(`Starting scrape of ${group_url}, limit: ${limit}, days: ${days}`);
-    const posts = scraper.scrapeGroupPosts(group_url, limit, days);
+    const posts = await scraper.scrapeGroupPosts(group_url, limit, days);
     
     res.json({
       success: true,
