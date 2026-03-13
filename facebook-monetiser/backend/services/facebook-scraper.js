@@ -66,9 +66,17 @@ class FacebookScraper {
     console.log('puppeteerUrl:', puppeteerUrl);
     console.log('Browser started, connecting...');
 
+    // Add API key to WebSocket URL if not present
+    let wsUrl = puppeteerUrl;
+    if (!wsUrl.includes('api_key')) {
+      const separator = wsUrl.includes('?') ? '&' : '?';
+      wsUrl = `${wsUrl}${separator}x_api_key=${this.apiKey}`;
+    }
+    console.log('WS URL with auth:', wsUrl.substring(0, 50) + '...');
+
     // Connect to the browser
     const browser = await puppeteer.connect({
-      browserWSEndpoint: puppeteerUrl,
+      browserWSEndpoint: wsUrl,
       defaultViewport: null,
       headers: { 'Host': 'localhost' }
     });
