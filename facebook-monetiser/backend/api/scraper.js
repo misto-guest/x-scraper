@@ -225,4 +225,28 @@ router.post('/add-and-scrape', async (req, res) => {
   });
 });
 
+/**
+ * Receive pre-scraped posts from local scraper
+ * Used when running scraper locally (mac-mini) and pushing to Fly
+ */
+router.post('/push-posts', async (req, res) => {
+  const { page_name, page_url, posts } = req.body;
+  
+  if (!page_url || !posts || !Array.isArray(posts)) {
+    return res.status(400).json({ error: 'page_url and posts array required' });
+  }
+
+  console.log(`Received ${posts.length} posts from local scraper for ${page_name}`);
+  
+  // In a full implementation, you'd save these to the database
+  // For now, just acknowledge receipt
+  res.json({
+    success: true,
+    message: `Received ${posts.length} posts for ${page_name}`,
+    page_name,
+    page_url,
+    posts_received: posts.length
+  });
+});
+
 module.exports = router;
