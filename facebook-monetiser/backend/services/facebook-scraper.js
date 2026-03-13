@@ -125,14 +125,31 @@ class FacebookScraper {
       // Start browser
       ({ browser, browserId } = await this.startBrowser());
 
-      // Close existing pages to prevent state issues
-      const pages = await browser.pages();
-      for (const page of pages) {
-        await page.close();
+      // Wait for browser to stabilize
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Get pages and close existing ones
+      try {
+        const pages = await browser.pages();
+        for (const page of pages) {
+          await page.close().catch(() => {});
+        }
+      } catch (e) {
+        console.log('Warning: Could not get/close pages:', e.message);
       }
 
-      // Create new page
-      const page = await browser.newPage();
+      // Create new page with retry
+      let page;
+      for (let i = 0; i < 3; i++) {
+        try {
+          page = await browser.newPage();
+          break;
+        } catch (e) {
+          console.log(`Failed to create page (attempt ${i+1}):`, e.message);
+          if (i === 2) throw e;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
 
       // Set user agent
       await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
