@@ -153,6 +153,10 @@ router.get('/test-connection', async (req, res) => {
   }
 
   try {
+    // Mask the API key for logging
+    const maskedKey = config.apiKey.substring(0, 4) + '...' + config.apiKey.substring(config.apiKey.length - 4);
+    console.log('Testing connection with key:', maskedKey);
+    
     const params = new URLSearchParams({ x_api_key: config.apiKey });
     const response = await fetch(`${config.apiUrl}/browsers/status?${params}`);
     const data = await response.json();
@@ -160,6 +164,7 @@ router.get('/test-connection', async (req, res) => {
     res.json({
       success: true,
       message: 'Browser API connected',
+      maskedKey: maskedKey,
       providers: data
     });
   } catch (error) {

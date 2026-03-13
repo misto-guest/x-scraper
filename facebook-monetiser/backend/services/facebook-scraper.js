@@ -46,6 +46,7 @@ class FacebookScraper {
     }
 
     console.log(`Starting browser: ${this.provider} at ${this.apiUrl}`);
+    console.log('API Key (first 4 chars):', this.apiKey ? this.apiKey.substring(0, 4) + '...' : 'undefined');
 
     const response = await fetch(`${this.apiUrl}/browsers/start?${startParams}`, {
       method: 'POST',
